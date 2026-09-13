@@ -113,6 +113,61 @@ function DnsHealthResult({
   verdict: { label: string; className: string } | null;
 }): React.ReactElement {
   const counts = severityCounts(result.findings);
+  const domain = result.domain;
+
+  // Record cards are built exclusively from the normalized backend response.
+  // Empty record types are never rendered; TTLs come only from the backend.
+  const recordCards: Array<{ title: string; rows: RecordRowInput[] }> = [];
+  if (result.records.a.length > 0) {
+    recordCards.push({
+      title: 'A Records',
+      rows: result.records.a.map((r) => ({ name: domain, value: r.address, ttl: ttlLabel(r.ttl) })),
+    });
+  }
+  if (result.records.aaaa.length > 0) {
+    recordCards.push({
+      title: 'AAAA Records',
+      rows: result.records.aaaa.map((r) => ({ name: domain, value: r.address, ttl: ttlLabel(r.ttl) })),
+    });
+  }
+  if (result.records.cname.length > 0) {
+    recordCards.push({
+      title: 'CNAME Records',
+      rows: result.records.cname.map((t) => ({ name: domain, value: t, ttl: TTL_UNAVAILABLE_LABEL })),
+    });
+  }
+  if (result.records.mx.length > 0) {
+    recordCards.push({
+      title: 'MX Records',
+      rows: result.records.mx.map((r) => ({
+        name: domain,
+        value: `${r.priority} ${r.exchange}`,
+        ttl: ttlLabel(r.ttl),
+      })),
+    });
+  }
+  if (result.records.ns.length > 0) {
+    recordCards.push({
+      title: 'NS Records',
+      rows: result.records.ns.map((r) => ({ name: domain, value: r.nameserver, ttl: TTL_UNAVAILABLE_LABEL })),
+    });
+  }
+  if (result.records.txt.length > 0) {
+    recordCards.push({
+      title: 'TXT Records',
+      rows: result.records.txt.map((t) => ({ name: domain, value: t, ttl: TTL_UNAVAILABLE_LABEL })),
+    });
+  }
+  if (result.records.caa.length > 0) {
+    recordCards.push({
+      title: 'CAA Records',
+      rows: result.records.caa.map((r) => ({
+        name: domain,
+        value: `${r.flags} ${r.tag} "${r.value}"`,
+        ttl: TTL_UNAVAILABLE_LABEL,
+      })),
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -144,41 +199,20 @@ function DnsHealthResult({
       </section>
 
       <section className="rounded-xl border border-line bg-white p-6">
-        <h2 className="text-lg font-semibold text-ink">DNS records</h2>
-        <p className="mt-1 text-sm text-muted">Observed by this resolver during the analysis.</p>
-        <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-          <RecordGroup label="A (IPv4)" items={result.records.a.map((r) => r.address)} />
-          <RecordGroup label="AAAA (IPv6)" items={result.records.aaaa.map((r) => r.address)} />
-          <RecordGroup label="CNAME" items={result.records.cname} />
-          <RecordGroup
-            label="MX"
-            items={result.records.mx.map((r) => `${r.priority} ${r.exchange}`)}
-          />
-          <RecordGroup label="NS" items={result.records.ns.map((r) => r.nameserver)} />
-          <RecordGroup label="TXT" items={result.records.txt} />
-          <RecordGroup
-            label="CAA"
-            items={result.records.caa.map((r) => `${r.flags} ${r.tag} "${r.value}"`)}
-          />
-        </dl>
+        <h2 className="text-lg font-semibold text-ink">DNS Records</h2>
+        <p className="mt-1 text-sm text-muted">Published DNS records observed by the resolver.</p>
+        <div className="mt-4 space-y-4">
+          {recordCards.length === 0 ? (
+            <p className="text-sm text-muted">No DNS records were returned for this domain.</p>
+          ) : (
+            recordCards.map((card) => <RecordCard key={card.title} title={card.title} rows={card.rows} />)
+          )}
+          {result.records.soa ? <SoaCard soa={result.records.soa} domain={result.domain} /> : null}
+        </div>
+        <p className="mt-4 text-xs text-slate-500">
+          TTLs are shown only when the resolver returns them; “—” means the TTL was not provided for that record.
+        </p>
       </section>
-
-      {result.records.soa ? (
-        <section className="rounded-xl border border-line bg-white p-6">
-          <h2 className="text-lg font-semibold text-ink">SOA</h2>
-          <p className="mt-1 text-sm text-muted">
-            Start of authority values as returned by this resolver.
-          </p>
-          <dl className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2">
-            {buildSoaFields(result.records.soa).map((field) => (
-              <div key={field.label} className="flex justify-between gap-4 text-sm">
-                <dt className="text-slate-600">{field.label}</dt>
-                <dd className="font-mono text-xs text-ink">{field.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      ) : null}
 
       <section className="rounded-xl border border-line bg-white p-6">
         <h2 className="text-lg font-semibold text-ink">DNSSEC</h2>
@@ -299,6 +333,74 @@ function RecordGroup({ label, items }: { label: string; items: string[] }): Reac
           </ul>
         )}
       </dd>
+    </div>
+  );
+}
+
+
+const TTL_UNAVAILABLE_LABEL = '—';
+
+interface RecordRowInput {
+  name: string;
+  value: string;
+  ttl: string;
+}
+
+/** Renders a TTL only when the backend provided a finite, non-negative one. */
+function ttlLabel(ttl: unknown): string {
+  if (typeof ttl === 'number' && Number.isFinite(ttl) && ttl >= 0) {
+    return `${ttl}s`;
+  }
+  return TTL_UNAVAILABLE_LABEL;
+}
+
+function RecordCard({ title, rows }: { title: string; rows: RecordRowInput[] }): React.ReactElement {
+  return (
+    <div className="rounded-lg border border-line bg-paper p-4">
+      <h3 className="text-sm font-semibold text-ink">{title}</h3>
+      <RecordTable rows={rows} />
+    </div>
+  );
+}
+
+function SoaCard({ soa, domain }: { soa: unknown; domain: string }): React.ReactElement {
+  return (
+    <div className="rounded-lg border border-line bg-paper p-4">
+      <h3 className="text-sm font-semibold text-ink">SOA</h3>
+      <p className="mt-1 font-mono text-xs text-ink">{domain}</p>
+      <dl className="mt-3 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+        {buildSoaFields(soa).map((field) => (
+          <div key={field.label} className="flex justify-between gap-4 text-sm">
+            <dt className="text-slate-600">{field.label}</dt>
+            <dd className="break-all font-mono text-xs text-ink">{field.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+function RecordTable({ rows }: { rows: RecordRowInput[] }): React.ReactElement {
+  return (
+    <div className="mt-3 overflow-x-auto">
+      <table className="min-w-full text-left text-sm">
+        <thead>
+          <tr className="border-b border-line">
+            <th scope="col" className="px-3 py-2 font-medium text-slate-500">Name</th>
+            <th scope="col" className="px-3 py-2 font-medium text-slate-500">Value</th>
+            <th scope="col" className="px-3 py-2 font-medium text-slate-500">TTL</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr key={`${row.value}-${index}`} className="border-b border-slate-100">
+              <td className="px-3 py-2 font-mono text-xs text-ink">{row.name}</td>
+              <td className="break-all px-3 py-2 font-mono text-xs text-ink">{row.value}</td>
+              <td className="whitespace-nowrap px-3 py-2 font-mono text-xs text-slate-600">{row.ttl}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
