@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -11,9 +11,21 @@ html {
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-paper text-ink antialiased;
+}
+
+::selection {
+  @apply bg-accent-tint text-ink;
 }
 
 :focus-visible {
-  @apply outline-none ring-2 ring-teal-700 ring-offset-2;
+  @apply outline-none ring-2 ring-accent ring-offset-2;
+}
+
+/* Subtle technical grid used behind hero sections. */
+.bg-tech-grid {
+  background-image:
+    linear-gradient(to right, rgba(15, 118, 110, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 118, 110, 0.045) 1px, transparent 1px);
+  background-size: 36px 36px;
 }

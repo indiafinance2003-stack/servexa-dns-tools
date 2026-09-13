@@ -27,6 +27,11 @@ export async function apiGet<T>(path: string): Promise<T> {
   return parseResponse<T>(response);
 }
 
+export async function apiDelete<T>(path: string): Promise<T> {
+  const response = await fetch(path, { method: 'DELETE' });
+  return parseResponse<T>(response);
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
   let payload: APIResponse<T> | null = null;
   try {

@@ -13,6 +13,7 @@ interface Config {
   MAX_LINE_LENGTH: number;
   MAX_DNS_QUERIES_PER_REQUEST: number;
   MAX_SPF_INCLUDE_LOOKUPS: number;
+  TRUST_PROXY_HEADERS: boolean;
 }
 
 function parseEnvInt(name: string, fallback: number): number {
@@ -20,6 +21,12 @@ function parseEnvInt(name: string, fallback: number): number {
   if (!raw) return fallback;
   const value = parseInt(raw, 10);
   return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function parseEnvBool(name: string, fallback: boolean): boolean {
+  const raw = process.env[name];
+  if (raw === undefined) return fallback;
+  return raw.trim().toLowerCase() === 'true';
 }
 
 function getConfig(): Config {
@@ -30,7 +37,7 @@ function getConfig(): Config {
 
   return {
     NODE_ENV: nodeEnv,
-    APP_URL: process.env.APP_URL || 'http://localhost:3000',
+    APP_URL: process.env.APP_URL || 'https://ravelyth.in',
     APP_VERSION: process.env.APP_VERSION || '0.1.0',
     DNS_TIMEOUT_MS: parseEnvInt('DNS_TIMEOUT_MS', 10000),
     DNS_QUERY_TIMEOUT_MS: parseEnvInt('DNS_QUERY_TIMEOUT_MS', 8000),
@@ -43,6 +50,7 @@ function getConfig(): Config {
     MAX_LINE_LENGTH: parseEnvInt('MAX_LINE_LENGTH', 998),
     MAX_DNS_QUERIES_PER_REQUEST: parseEnvInt('MAX_DNS_QUERIES_PER_REQUEST', 32),
     MAX_SPF_INCLUDE_LOOKUPS: parseEnvInt('MAX_SPF_INCLUDE_LOOKUPS', 10),
+    TRUST_PROXY_HEADERS: parseEnvBool('TRUST_PROXY_HEADERS', nodeEnv === 'production'),
   };
 }
 

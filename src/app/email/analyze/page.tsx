@@ -5,6 +5,9 @@ import { EmailAnalyzerTool } from '@/components/tools/email-analyzer-tool';
 export const metadata: Metadata = {
   title: 'Email Header Analyzer',
   description: 'Paste complete raw email headers to inspect Received hops, authentication results, and domain relationships.',
+  alternates: {
+    canonical: '/email/analyze',
+  },
 };
 
 export default function Page(): React.ReactElement {
