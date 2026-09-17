@@ -339,3 +339,243 @@ export interface EmailAnalysis {
     headers: EmailHeader[];
   };
 }
+
+/* -------------------------------------------------------------------------- */
+/* Part 1 web/TLS diagnostics                                                  */
+/* -------------------------------------------------------------------------- */
+
+export interface CertificateDetails {
+  subject: string;
+  commonName?: string;
+  issuer: string;
+  issuerCommonName?: string;
+  altNames: string[];
+  validFrom?: string;
+  validTo?: string;
+  /** Whole days until `validTo`; negative when the certificate has expired. */
+  daysRemaining: number | null;
+  serialNumber?: string;
+  fingerprintSha256?: string;
+  isCA: boolean;
+  selfSigned: boolean;
+}
+
+export interface CertificateChainEntry {
+  depth: number;
+  subject: string;
+  issuer: string;
+  validFrom?: string;
+  validTo?: string;
+  isCA: boolean;
+  selfSigned: boolean;
+  fingerprintSha256?: string;
+}
+
+export type CertificateVerificationStatus = 'trusted' | 'untrusted' | 'expired' | 'not_yet_valid';
+
+export interface SslCheckResult {
+  hostname: string;
+  port: number;
+  inspectedAt: string;
+  /** The address actually contacted, from the validated public address set. */
+  connectedAddress: string;
+  /**
+   * The Node.js TLS stack's chain-verification verdict for the certificate the
+   * server presented. It is not an endorsement of the site.
+   */
+  chainTrusted: boolean;
+  verificationError: string | null;
+  /** Whether the hostname identity check (SAN/CN) passed. */
+  hostnameCovered: boolean;
+  protocol: string | null;
+  cipher: string | null;
+  certificate: CertificateDetails | null;
+  chain: CertificateChainEntry[];
+  handshakeTimeMs: number;
+  findings: Finding[];
+}
+
+/* -------------------------------------------------------------------------- */
+/* Part 1 HTTP / website diagnostics                                           */
+/* -------------------------------------------------------------------------- */
+
+export interface HttpHeaderEntry {
+  name: string;
+  value: string;
+}
+
+export interface HttpRedirectHop {
+  from: string;
+  to: string;
+  statusCode: number;
+  followed: boolean;
+  reason?: string;
+}
+
+export interface HttpHeaderCheckResult {
+  requestedUrl: string;
+  finalUrl: string;
+  protocol: 'http' | 'https';
+  statusCode: number;
+  statusMessage: string;
+  httpVersion: string;
+  headers: HttpHeaderEntry[];
+  redirects: HttpRedirectHop[];
+  redirectStopReason?: string;
+  remoteAddress: string;
+  timingMs: number;
+  bodyBytes: number;
+  bodyTruncated: boolean;
+  /** First bytes of the body as text; never executed or rendered as markup. */
+  bodyPreview: string | null;
+  notes: string[];
+}
+
+export interface SecurityHeaderCheck {
+  name: string;
+  present: boolean;
+  value?: string;
+  severity: FindingSeverity;
+  summary: string;
+  explanation: string;
+  recommendation?: string;
+}
+
+export interface WebsiteSecurityHeadersResult {
+  finalUrl: string;
+  statusCode: number;
+  https: boolean;
+  checks: SecurityHeaderCheck[];
+  score: { present: number; missing: number; total: number };
+  findings: Finding[];
+  notes: string[];
+}
+
+export interface WebsiteAvailabilityResult {
+  requestedUrl: string;
+  finalUrl: string;
+  reachable: boolean;
+  statusCode: number | null;
+  statusMessage: string | null;
+  protocol: 'http' | 'https' | null;
+  httpVersion: string | null;
+  totalTimeMs: number;
+  redirects: HttpRedirectHop[];
+  redirectStopReason?: string;
+  serverHeader: string | null;
+  contentType: string | null;
+  contentLength: string | null;
+  httpToHttpsRedirectObserved: boolean;
+  findings: Finding[];
+  notes: string[];
+}
+
+/* -------------------------------------------------------------------------- */
+/* Part 1 DNS diagnostics                                                      */
+/* -------------------------------------------------------------------------- */
+
+export interface DelegationObservation {
+  label: string;
+  severity: FindingSeverity;
+  detail: string;
+}
+
+export interface DelegationCheckResult {
+  domain: string;
+  nameservers: NSRecord[];
+  /** Addresses each nameserver hostname resolves to, as observed. */
+  nameserverAddresses: Array<{ nameserver: string; addresses: string[]; error?: string }>;
+  soa: SOARecord | null;
+  /** The SOA MNAME field and what could be observed about it. */
+  primaryNameserver: {
+    name: string | null;
+    appearsInNsRecords: boolean | null;
+    resolvesToAddress: boolean | null;
+    addresses: string[];
+  };
+  singleProvider: boolean | null;
+  observations: DelegationObservation[];
+  findings: Finding[];
+  queryTimeMs: number;
+  notes: string[];
+}
+
+export interface PropagationResolverResult {
+  resolver: string;
+  server: string;
+  status: DNSLookupStatus;
+  answers: string[];
+  error?: string;
+  queryTimeMs: number;
+}
+
+export interface PropagationCheckResult {
+  domain: string;
+  recordType: DNSRecordType;
+  results: PropagationResolverResult[];
+  /** Values returned by every resolver that answered successfully. */
+  consensus: string[];
+  /** Values returned by at least one resolver but not by all successful ones. */
+  divergent: string[];
+  agreement: boolean;
+  /** Fraction of resolvers that answered successfully (0-1). */
+  responseRate: number;
+  findings: Finding[];
+  notes: string[];
+}
+
+export interface EmailDomainHealthSection {
+  key: 'mx' | 'spf' | 'dmarc' | 'dkim' | 'ptr';
+  title: string;
+  status: FindingSeverity;
+  summary: string;
+  details: string[];
+  findings: Finding[];
+}
+
+export interface EmailDomainHealthResult {
+  domain: string;
+  selector: string | null;
+  /** True only when the DKIM section is present because a selector was supplied. */
+  dkimChecked: boolean;
+  sections: EmailDomainHealthSection[];
+  overallStatus: FindingSeverity;
+  findings: Finding[];
+  notes: string[];
+}
+
+/* -------------------------------------------------------------------------- */
+/* Part 1 domain registration information (RDAP)                               */
+/* -------------------------------------------------------------------------- */
+
+export interface RdapEvent {
+  action: string;
+  date: string;
+}
+
+export interface RdapNameserver {
+  name: string;
+  addresses: string[];
+}
+
+export interface RdapContact {
+  role: string;
+  /** Only organization names; redacted personal fields are omitted. */
+  organization: string | null;
+  /** Only present when the registry publishes it unredacted. */
+  email: string | null;
+}
+
+export interface DomainInfoResult {
+  domain: string;
+  /** The RDAP endpoint that produced this record. */
+  source: string;
+  handle: string | null;
+  status: string[];
+  registrar: string | null;
+  events: RdapEvent[];
+  nameservers: RdapNameserver[];
+  dnssecSigned: boolean | null;
+  contacts: RdapContact[];
+  notes: string[];
+}
