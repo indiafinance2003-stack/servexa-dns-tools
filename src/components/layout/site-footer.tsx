@@ -27,7 +27,7 @@ const columns: Array<{
   {
     title: 'Resources',
     links: [
-      { label: 'Documentation', href: '/docs' },
+      { label: 'Knowledge Base', href: '/docs' },
       { label: 'DNS Guides', href: '/guides/dns' },
       { label: 'Email Authentication Guides', href: '/guides/email' },
       { label: 'FAQ', href: '/faq' },
@@ -37,6 +37,9 @@ const columns: Array<{
     title: 'Company',
     links: [
       { label: 'About', href: '/about' },
+      { label: 'Pricing', href: '/pricing' },
+      { label: 'Managed Services', href: '/services' },
+      { label: 'Request Support', href: '/support/request' },
       { label: 'Contact', href: '/contact' },
       { label: 'Privacy Policy', href: '/privacy' },
       { label: 'Terms of Service', href: '/terms' },
@@ -51,6 +54,9 @@ export function SiteFooter({ authenticated = false }: { authenticated?: boolean 
   const accountColumn = authenticated
     ? [
         { label: 'Your Account', href: '/account' },
+        { label: 'Support Tickets', href: '/account/support' },
+        { label: 'Notifications', href: '/account/notifications' },
+        { label: 'Billing', href: '/account/billing' },
         { label: 'Public Tools', href: '/dns/lookup' },
       ]
     : [

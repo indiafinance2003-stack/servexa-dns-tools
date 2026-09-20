@@ -8,4 +8,7 @@ node_modules/
 *.log
 coverage/
 
+# Private runtime storage (candidate documents etc.). Never versioned.
+.ravelyth-private/
+
 tsconfig.tsbuildinfo

@@ -8,6 +8,41 @@
       "when": 1789232231833,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789662041768,
+      "tag": "0001_long_dragon_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789740390560,
+      "tag": "0002_workable_grim_reaper",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789819060509,
+      "tag": "0003_control_foundations",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789819695317,
+      "tag": "0004_talent",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789908319757,
+      "tag": "0005_candidate_confirmation",
+      "breakpoints": true
     }
   ]
 }

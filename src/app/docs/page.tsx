@@ -1,77 +1,96 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { InfoPage, InfoSection, InfoLinkList } from '@/components/layout/info-page';
+import { listPublicCategories, listPublicArticles } from '@/lib/kb/service';
 
 export const metadata: Metadata = {
-  title: 'Documentation',
-  description: 'How Ravelyth works, what it measures, what it does not claim, and how accounts work.',
+  title: 'Knowledge Base',
+  description:
+    'Troubleshooting guides for DNS propagation, nameservers, SPF, DKIM, DMARC, email delivery, WordPress errors, VPS and SSL problems — with structured diagnostic steps.',
   alternates: { canonical: '/docs' },
 };
 
-export default function Page(): React.ReactElement {
+export const dynamic = 'force-dynamic';
+
+export default async function Page(): Promise<React.ReactElement> {
+  const categories = await listPublicCategories();
+  const articles = await listPublicArticles();
+
+  const articleCountByCategory = new Map<string, number>();
+  for (const article of articles.data) {
+    articleCountByCategory.set(
+      article.categorySlug,
+      (articleCountByCategory.get(article.categorySlug) ?? 0) + 1
+    );
+  }
+
+  const featured = articles.data.filter((article) => article.featured).slice(0, 3);
+
   return (
     <InfoPage
-      title="Documentation"
-      intro="Ravelyth is a public DNS and email diagnostics website. It performs real lookups through DNS resolver APIs and parses email headers you paste. Accounts are optional and exist only to save DNS analyses."
+      title="Knowledge Base"
+      intro="Structured troubleshooting guides: what the problem looks like, what to collect, how to diagnose it with the free tools, and how to fix it."
     >
-      <InfoSection title="Tools" id="tools">
+      {featured.length > 0 ? (
+        <InfoSection title="Featured guides" id="featured">
+          <InfoLinkList
+            items={featured.map((article) => ({
+              label: article.title,
+              href: `/docs/${article.slug}`,
+              note: article.description ?? undefined,
+            }))}
+          />
+        </InfoSection>
+      ) : null}
+
+      {categories.data.length > 0 ? (
+        <InfoSection title="Browse by topic" id="categories">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {categories.data.map((category) => (
+              <div key={category.slug} className="rounded-lg border border-line p-4">
+                <h3 className="font-semibold text-ink">{category.title}</h3>
+                {category.description ? (
+                  <p className="mt-1 text-sm text-slate-600">{category.description}</p>
+                ) : null}
+                <p className="mt-2 text-xs uppercase tracking-wide text-slate-500">
+                  {articleCountByCategory.get(category.slug) ?? 0} article
+                  {(articleCountByCategory.get(category.slug) ?? 0) === 1 ? '' : 's'}
+                </p>
+              </div>
+            ))}
+          </div>
+        </InfoSection>
+      ) : null}
+
+      {articles.data.length > 0 ? (
+        <InfoSection title="All guides" id="articles">
+          <InfoLinkList
+            items={articles.data.map((article) => ({
+              label: article.title,
+              href: `/docs/${article.slug}`,
+              note: article.description ?? undefined,
+            }))}
+          />
+        </InfoSection>
+      ) : null}
+
+      <InfoSection title="Search" id="search">
+        <p>
+          Looking for something specific? Use the search page to find guides by keyword:{' '}
+          <Link href="/docs/search" className="font-medium text-accent hover:text-accent-strong">
+            Search the Knowledge Base
+          </Link>
+          .
+        </p>
+      </InfoSection>
+
+      <InfoSection title="How Ravelyth works" id="about">
         <InfoLinkList
           items={[
-            { label: 'DNS Lookup', href: '/dns/lookup', note: 'A, AAAA, CNAME, MX, NS, TXT, SOA, SRV, and CAA records in a structured table.' },
-            { label: 'DNS Health', href: '/dns/analyze', note: 'Records, nameservers, SOA, SPF, DMARC, DNSSEC-related data, and Pass/Info/Warning/Error findings.' },
-            { label: 'SPF Checker', href: '/dns/spf', note: 'Parses published v=spf1 policy; not a live sender authorization test.' },
-            { label: 'DKIM Checker', href: '/dns/dkim', note: 'Inspects the published key for a selector; no cryptographic signature verification.' },
-            { label: 'DMARC Checker', href: '/dns/dmarc', note: 'Reads the _dmarc policy and its tags.' },
-            { label: 'PTR Lookup', href: '/dns/ptr', note: 'Reverse lookups for public IP addresses only.' },
-            { label: 'Resolver Comparison', href: '/dns/resolvers', note: 'Side-by-side answers from selected public resolvers; not global propagation.' },
-            { label: 'Email Headers', href: '/email/analyze', note: 'Received chain, reported authentication results, and domain relationships.' },
-          ]}
-        />
-      </InfoSection>
-
-      <InfoSection title="Accounts and saved analyses" id="accounts">
-        <p>
-          Every tool works without an account. Creating a free account lets you explicitly save DNS lookup results
-          to your account page. Saving is always manual — lookups are never recorded automatically. Saved items
-          contain the structured DNS result only, are visible only to you, and can be deleted at any time.
-        </p>
-        <p>
-          Passwords are hashed with Argon2id. Sessions use an HttpOnly cookie containing a random token; the
-          server stores only a hash of the token and enforces expiry. Raw email headers are never stored, and
-          email analyses cannot be saved.
-        </p>
-      </InfoSection>
-
-      <InfoSection title="What these tools do not do" id="limits">
-        <ul className="list-disc space-y-2 pl-5">
-          <li>No cryptographic verification of DKIM signatures.</li>
-          <li>No live SPF authorization test (published policy is inspected, not enforced).</li>
-          <li>No verdict on whether a message is safe or malicious.</li>
-          <li>No scanning of private, loopback, or link-local addresses.</li>
-          <li>DNSSEC inspection reports record presence, not a validated chain of trust.</li>
-          <li>No global propagation measurement — one resolver’s observations at one point in time.</li>
-        </ul>
-      </InfoSection>
-
-      <InfoSection title="API" id="api">
-        <p>
-          JSON endpoints live under <code>/api</code>. Domain tools accept GET query parameters or POST JSON. Email
-          analysis is POST-only. Responses use <code>{'{ success, data }'}</code> or{' '}
-          <code>{'{ success, error }'}</code>.
-        </p>
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-700">
-          <li><code>/api/dns/lookup</code>, <code>/api/dns/analyze</code>, <code>/api/dns/spf</code>, <code>/api/dns/dmarc</code>, <code>/api/dns/dkim</code>, <code>/api/dns/ptr</code>, <code>/api/dns/resolvers</code> — GET and POST.</li>
-          <li><code>/api/email/analyze</code> — POST only.</li>
-          <li><code>/api/auth/register</code>, <code>/api/auth/login</code>, <code>/api/auth/logout</code> — POST only; <code>/api/auth/me</code> — GET.</li>
-          <li><code>/api/account/saved-analyses</code> — GET/POST for the signed-in user; <code>/api/account/saved-analyses/[id]</code> — DELETE.</li>
-        </ul>
-      </InfoSection>
-
-      <InfoSection title="Guides" id="guides">
-        <InfoLinkList
-          items={[
+            { label: 'Documentation & tool limits', href: '/docs/about', note: 'What the tools measure and what they do not claim.' },
+            { label: 'FAQ', href: '/faq' },
             { label: 'DNS guides', href: '/guides/dns' },
             { label: 'Email authentication guides', href: '/guides/email' },
-            { label: 'FAQ', href: '/faq' },
           ]}
         />
       </InfoSection>

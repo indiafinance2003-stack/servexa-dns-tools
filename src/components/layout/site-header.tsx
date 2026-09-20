@@ -9,6 +9,8 @@ const nav = [
   { href: '/dns/analyze', label: 'DNS Health' },
   { href: '/email/analyze', label: 'Email Headers' },
   { href: '/docs', label: 'Docs' },
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/talent', label: 'Talent' },
   { href: '/about', label: 'About' },
 ];
 

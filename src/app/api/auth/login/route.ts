@@ -6,6 +6,7 @@ import { parseWithSchema } from '@/lib/validation/parse';
 import { loginSchema } from '@/lib/auth/schemas';
 import { getDummyPasswordHash, verifyPassword } from '@/lib/auth/password';
 import { createSession } from '@/lib/auth/session';
+import { promoteOwnerIfConfigured } from '@/lib/auth/owner-bootstrap';
 import {
   checkAuthRateLimit,
   getLoginRateLimiter,
@@ -57,6 +58,10 @@ async function login(req: NextRequest) {
     .update(users)
     .set({ lastLoginAt: new Date(), updatedAt: new Date() })
     .where(eq(users.id, user.id));
+
+  // The OWNER_EMAIL account becomes the owner on any successful sign-in.
+  // Bootstrap is server-only and never client-settable.
+  await promoteOwnerIfConfigured(user.id, user.email);
 
   await createSession(user.id);
   logger.info('User logged in', { userId: user.id });

@@ -5,6 +5,7 @@ import { parseWithSchema } from '@/lib/validation/parse';
 import { registrationSchema } from '@/lib/auth/schemas';
 import { hashPassword } from '@/lib/auth/password';
 import { createSession } from '@/lib/auth/session';
+import { promoteOwnerIfConfigured } from '@/lib/auth/owner-bootstrap';
 import {
   getRegisterRateLimiter,
   registerKey,
@@ -46,6 +47,10 @@ async function register(req: NextRequest) {
     }
     throw error;
   }
+
+  // If OWNER_EMAIL equals the just-created account, the account is immediately
+  // promoted to owner (matching how logins re-assert the bootstrap role).
+  await promoteOwnerIfConfigured(created.id, created.email);
 
   await createSession(created.id);
   logger.info('User registered', { userId: created.id });

@@ -23,6 +23,8 @@ export enum AppErrorCode {
   TLS_ERROR = 'TLS_ERROR',
   UPSTREAM_ERROR = 'UPSTREAM_ERROR',
   NOT_FOUND = 'NOT_FOUND',
+  BAD_REQUEST = 'BAD_REQUEST',
+  FORBIDDEN = 'FORBIDDEN',
 }
 
 export class AppError extends Error {

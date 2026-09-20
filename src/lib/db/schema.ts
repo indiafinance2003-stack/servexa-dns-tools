@@ -22,12 +22,17 @@ export const users = pgTable(
     passwordHash: text('password_hash').notNull(),
     name: text('name').notNull(),
     status: text('status').notNull().default('active'),
+    // Platform role. 'customer' is the default for every registration; 'staff'
+    // and 'owner' are granted exclusively by server-side bootstrap/owner
+    // actions (see src/lib/admin/guards.ts). Never client-settable.
+    role: text('role').notNull().default('customer'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
   },
   (table) => [
     uniqueIndex('users_email_unique_idx').on(table.email),
+    index('users_role_idx').on(table.role),
   ]
 );
 
@@ -100,15 +105,36 @@ export const supportTickets = pgTable(
     status: text('status').notNull().default('open'),
     affectedDomain: text('affected_domain'),
     relatedTool: text('related_tool'),
+    // How this ticket was created. 'managed_support' = created by a customer
+    // with an active Managed Support entitlement. 'public_request' = a general
+    // support request from a signed-in account without Managed Support, which
+    // does not consume Managed Support capacity.
+    origin: text('origin').notNull().default('managed_support'),
+    // Operational classification of who is expected to resolve the issue.
+    responsibility: text('responsibility').notNull().default('unassigned'),
+    // Public service catalogue slug the ticket belongs to (dns-management…).
+    serviceSlug: text('service_slug'),
+    // Which entitlement check authorised creation (audit trail only).
+    entitlementSource: text('entitlement_source'),
+    // Sanitized diagnostic/tool context (never raw email headers).
+    contextJson: jsonb('context_json'),
+    // Internal assignment foundation (used by the Owner Admin Room).
+    assignedToUserId: uuid('assigned_to_user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     notifyEmail: text('notify_email'),
+    lastMessageAt: timestamp('last_message_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+    closedAt: timestamp('closed_at', { withTimezone: true }),
   },
   (table) => [
     index('support_tickets_user_id_idx').on(table.userId),
     index('support_tickets_user_id_status_idx').on(table.userId, table.status),
     index('support_tickets_reference_idx').on(table.reference),
+    index('support_tickets_status_priority_idx').on(table.status, table.priority),
+    index('support_tickets_origin_idx').on(table.origin),
   ]
 );
 
@@ -124,6 +150,11 @@ export const supportMessages = pgTable(
       .notNull()
       .references(() => supportTickets.id, { onDelete: 'cascade' }),
     authorRole: text('author_role').notNull(),
+    // Staff author identity for replies written from the admin room. Null for
+    // customer-authored messages (the customer is known from the ticket owner).
+    authorUserId: uuid('author_user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     body: text('body').notNull(),
     isInternal: boolean('is_internal').notNull().default(false),
     internalNote: text('internal_note'),
@@ -131,6 +162,7 @@ export const supportMessages = pgTable(
   },
   (table) => [
     index('support_messages_ticket_id_created_at_idx').on(table.ticketId, table.createdAt),
+    index('support_messages_is_internal_idx').on(table.isInternal),
   ]
 );
 
@@ -162,7 +194,7 @@ export const kbArticles = pgTable(
     categoryId: uuid('category_id')
       .notNull()
       .references(() => kbCategories.id, { onDelete: 'restrict' }),
-    slug: text('slug').notNull(),
+    slug: text('slug').notNull().unique(),
     title: text('title').notNull(),
     description: text('description'),
     status: text('status').notNull().default('published'),
@@ -178,7 +210,6 @@ export const kbArticles = pgTable(
   },
   (table) => [
     index('kb_articles_category_id_idx').on(table.categoryId),
-    index('kb_articles_category_slug_idx').on(table.categoryId, table.slug),
     index('kb_articles_status_idx').on(table.status),
     index('kb_articles_published_at_idx').on(table.publishedAt),
   ]
@@ -270,6 +301,115 @@ export const notifications = pgTable(
 );
 
 /** ---------------------------------------------------------------------------
+ * Part 3 — Control / Licensing / Agent foundations
+ * --------------------------------------------------------------------------- */
+
+/** Organizations group users for multi-tenant provider/reseller/enterprise use.
+ * Not used for the default (single-tenant) deployment yet; foundation only. */
+export const organizations = pgTable(
+  'organizations',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    ownerUserId: uuid('owner_user_id').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+        uniqueIndex('organizations_slug_unique_idx').on(table.slug),
+  ]
+);
+
+/** License keys grant access to Ravelyth Control capabilities.
+ * Never store raw license secrets in browser code. */
+export const licenses = pgTable(
+  'licenses',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    keyHash: text('key_hash').notNull(),
+    keyPrefix: text('key_prefix').notNull(),
+    customerId: uuid('customer_id').references(() => users.id, { onDelete: 'set null' }),
+    organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'set null' }),
+    status: text('status').notNull().default('active'),
+        capabilities: jsonb('capabilities').notNull().default({}),
+    expiresAt: timestamp('expires_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    activatedAt: timestamp('activated_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('licenses_key_hash_unique_idx').on(table.keyHash),
+    index('licenses_customer_id_idx').on(table.customerId),
+    index('licenses_organization_id_idx').on(table.organizationId),
+    index('licenses_status_idx').on(table.status),
+  ]
+);
+
+/** Servers registered to Ravelyth Control. */
+export const controlServers = pgTable(
+  'control_servers',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: text('name').notNull(),
+    organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'set null' }),
+    tokenHash: text('token_hash').notNull(),
+    tokenPrefix: text('token_prefix').notNull(),
+    registeredHost: text('registered_host'),
+    status: text('status').notNull().default('active'),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('control_servers_token_hash_unique_idx').on(table.tokenHash),
+    index('control_servers_org_id_idx').on(table.organizationId),
+    index('control_servers_status_idx').on(table.status),
+  ]
+);
+
+/** Short-lived nonces for agent request signing / replay protection. */
+export const agentNonces = pgTable(
+  'agent_nonces',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    serverId: uuid('server_id')
+      .notNull()
+      .references(() => controlServers.id, { onDelete: 'cascade' }),
+    nonceHash: text('nonce_hash').notNull(),
+    issuedAt: timestamp('issued_at', { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    used: boolean('used').notNull().default(false),
+  },
+  (table) => [
+    uniqueIndex('agent_nonces_nonce_hash_unique_idx').on(table.nonceHash),
+    index('agent_nonces_server_id_expires_at_idx').on(table.serverId, table.expiresAt),
+    index('agent_nonces_expires_at_idx').on(table.expiresAt),
+  ]
+);
+
+/** Audit log for security-sensitive internal operations. */
+export const auditLog = pgTable(
+  'audit_log',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    actorUserId: uuid('actor_user_id').references(() => users.id, { onDelete: 'set null' }),
+    actorServerId: uuid('actor_server_id').references(() => controlServers.id, { onDelete: 'set null' }),
+    action: text('action').notNull(),
+    description: text('description'),
+    ipAddress: text('ip_address'),
+        metadata: jsonb('metadata').default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('audit_log_actor_user_id_idx').on(table.actorUserId),
+    index('audit_log_actor_server_id_idx').on(table.actorServerId),
+    index('audit_log_action_idx').on(table.action),
+    index('audit_log_created_at_idx').on(table.createdAt),
+  ]
+);
+
+/** ---------------------------------------------------------------------------
  * Exported types
  * --------------------------------------------------------------------------- */
 
@@ -280,6 +420,11 @@ export type KbArticleRow = typeof kbArticles.$inferSelect;
 export type SubscriptionRow = typeof subscriptions.$inferSelect;
 export type InvoiceRow = typeof invoices.$inferSelect;
 export type NotificationRow = typeof notifications.$inferSelect;
+export type OrganizationRow = typeof organizations.$inferSelect;
+export type LicenseRow = typeof licenses.$inferSelect;
+export type ControlServerRow = typeof controlServers.$inferSelect;
+export type AgentNonceRow = typeof agentNonces.$inferSelect;
+export type AuditLogRow = typeof auditLog.$inferSelect;
 
 /** Support ticket category options. */
 export const SUPPORT_CATEGORIES = [
@@ -302,6 +447,35 @@ export type SupportPriority = (typeof SUPPORT_PRIORITIES)[number];
 export const SUPPORT_STATUSES = ['open', 'in_progress', 'waiting_for_customer', 'resolved', 'closed'] as const;
 export type SupportStatus = (typeof SUPPORT_STATUSES)[number];
 
+/**
+ * How a support ticket was created. 'managed_support' requires an active
+ * Managed Support entitlement; 'public_request' is the general request flow for
+ * a signed-in account without that entitlement.
+ */
+export const SUPPORT_ORIGINS = ['managed_support', 'public_request'] as const;
+export type SupportOrigin = (typeof SUPPORT_ORIGINS)[number];
+
+/**
+ * Who is expected to resolve the ticket. Used to separate Ravelyth's own
+ * responsibilities from hosting-provider infrastructure and customer-owned
+ * applications.
+ */
+export const SUPPORT_RESPONSIBILITIES = [
+  'unassigned',
+  'ravelyth_control',
+  'ravelyth_managed_support',
+  'hosting_provider',
+  'customer_application',
+  'dns_provider',
+  'email_provider',
+  'third_party',
+] as const;
+export type SupportResponsibility = (typeof SUPPORT_RESPONSIBILITIES)[number];
+
+/** Author roles used for support messages. */
+export const SUPPORT_MESSAGE_AUTHOR_ROLES = ['customer', 'staff', 'system'] as const;
+export type SupportMessageAuthorRole = (typeof SUPPORT_MESSAGE_AUTHOR_ROLES)[number];
+
 /** Subscription status options. */
 export const SUBSCRIPTION_STATUSES = ['none', 'trialing', 'active', 'past_due', 'canceled', 'expired', 'suspended'] as const;
 export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
@@ -320,5 +494,388 @@ export const NOTIFICATION_TYPES = [
   'invoice_issued',
   'invoice_paid',
   'account',
+  // Talent operating notifications (Owner-facing). Persisted in-app only; no
+  // email is claimed while EMAIL_PROVIDER is unconfigured.
+  'new_candidate_application',
+  'new_client_requirement',
+  'candidate_shortlisted',
+  'client_submission',
+  'interview_scheduled',
+  'interview_completed',
+  'candidate_selected',
+  'offer_received',
+  'candidate_joined',
+  'payment_received',
+  'payment_overdue',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+/** ---------------------------------------------------------------------------
+ * Part 6 — Ravelyth Talent (technology recruitment vertical)
+ *
+ * Candidate data is private by default: nothing in this section is ever exposed
+ * to an unauthenticated request. Public job pages read only the columns the
+ * Owner explicitly marks publishable, and resumes are stored out-of-tree with
+ * access mediated by an authenticated Owner-only route.
+ * --------------------------------------------------------------------------- */
+
+/** Recruitment clients: the companies Ravelyth Talent sources for. */
+export const talentClients = pgTable(
+  'talent_clients',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    companyName: text('company_name').notNull(),
+    companyWebsite: text('company_website'),
+    industry: text('industry'),
+    companyLocation: text('company_location'),
+    companySize: text('company_size'),
+    contactName: text('contact_name'),
+    contactDesignation: text('contact_designation'),
+    contactEmail: text('contact_email'),
+    contactPhone: text('contact_phone'),
+    linkedinUrl: text('linkedin_url'),
+    status: text('status').notNull().default('PROSPECT'),
+    notes: text('notes'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('talent_clients_status_idx').on(table.status),
+    index('talent_clients_company_name_idx').on(table.companyName),
+  ]
+);
+
+/** Recruitment jobs. `jobId` is the human-readable identifier (JOB-001). */
+export const talentJobs = pgTable(
+  'talent_jobs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    jobId: text('job_id').notNull(),
+    clientId: uuid('client_id').references(() => talentClients.id, { onDelete: 'set null' }),
+    title: text('title').notNull(),
+    description: text('description').notNull(),
+    employmentType: text('employment_type').notNull().default('full_time'),
+    location: text('location'),
+    workMode: text('work_mode').notNull().default('onsite'),
+    experienceMin: integer('experience_min'),
+    experienceMax: integer('experience_max'),
+    salaryMin: integer('salary_min'),
+    salaryMax: integer('salary_max'),
+    salaryCurrency: text('salary_currency').notNull().default('INR'),
+    /** Whether the salary band may be shown on the public job page. */
+    salaryPublic: boolean('salary_public').notNull().default(false),
+    openings: integer('openings').notNull().default(1),
+    requiredSkills: jsonb('required_skills').notNull().default([]),
+    preferredSkills: jsonb('preferred_skills').notNull().default([]),
+    qualification: text('qualification'),
+    shift: text('shift'),
+    noticePeriodRequirement: text('notice_period_requirement'),
+    status: text('status').notNull().default('draft'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    closedAt: timestamp('closed_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('talent_jobs_job_id_unique_idx').on(table.jobId),
+    index('talent_jobs_status_idx').on(table.status),
+    index('talent_jobs_client_id_idx').on(table.clientId),
+    index('talent_jobs_status_created_at_idx').on(table.status, table.createdAt),
+  ]
+);
+
+/** Recruitment candidates. `candidateId` is the human-readable CAN-000001 id. */
+export const talentCandidates = pgTable(
+  'talent_candidates',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    candidateId: text('candidate_id').notNull(),
+    fullName: text('full_name').notNull(),
+    email: text('email').notNull(),
+    phone: text('phone'),
+    whatsapp: text('whatsapp'),
+    currentLocation: text('current_location'),
+    preferredLocation: text('preferred_location'),
+    totalExperience: integer('total_experience'),
+    relevantExperience: integer('relevant_experience'),
+    currentCompany: text('current_company'),
+    /** Annual CTC in integer minor units (paise). Never a float. */
+    currentCtc: integer('current_ctc'),
+    expectedCtc: integer('expected_ctc'),
+    noticePeriod: text('notice_period'),
+    highestQualification: text('highest_qualification'),
+    skills: jsonb('skills').notNull().default([]),
+    linkedinUrl: text('linkedin_url'),
+    preferredWorkMode: text('preferred_work_mode'),
+    shiftPreference: text('shift_preference'),
+    relocationPreference: text('relocation_preference'),
+    source: text('source').notNull().default('website'),
+    /** Explicit recruitment-data consent recorded at application time. */
+    consentStatus: text('consent_status').notNull().default('pending'),
+    consentAt: timestamp('consent_at', { withTimezone: true }),
+    /** Owner-only free text. Never rendered on a public page. */
+    internalNotes: text('internal_notes'),
+    archivedAt: timestamp('archived_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('talent_candidates_candidate_id_unique_idx').on(table.candidateId),
+    index('talent_candidates_email_idx').on(table.email),
+    index('talent_candidates_created_at_idx').on(table.createdAt),
+    index('talent_candidates_full_name_idx').on(table.fullName),
+  ]
+);
+
+/**
+ * Job applications. One row per candidate/job pair, so a candidate can apply to
+ * several jobs and each application keeps its own pipeline status and history.
+ */
+export const talentApplications = pgTable(
+  'talent_applications',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    applicationId: text('application_id').notNull(),
+    candidateId: uuid('candidate_id')
+      .notNull()
+      .references(() => talentCandidates.id, { onDelete: 'cascade' }),
+    jobId: uuid('job_id')
+      .notNull()
+      .references(() => talentJobs.id, { onDelete: 'cascade' }),
+    source: text('source').notNull().default('website'),
+    status: text('status').notNull().default('NEW'),
+    recruiterNotes: text('recruiter_notes'),
+    screeningNotes: text('screening_notes'),
+    /** Set only when the Owner deliberately submits the candidate to a client. */
+    clientSubmissionDate: timestamp('client_submission_date', { withTimezone: true }),
+    /**
+     * Persisted server-side record that the candidate was contacted and
+     * confirmed interest and details. Set when the pipeline reaches INTERESTED
+     * and required before SHORTLISTED and CLIENT_SUBMITTED.
+     */
+    candidateConfirmedAt: timestamp('candidate_confirmed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('talent_applications_application_id_unique_idx').on(table.applicationId),
+    uniqueIndex('talent_applications_candidate_job_unique_idx').on(
+      table.candidateId,
+      table.jobId
+    ),
+    index('talent_applications_job_id_idx').on(table.jobId),
+    index('talent_applications_status_idx').on(table.status),
+    index('talent_applications_candidate_id_idx').on(table.candidateId),
+  ]
+);
+
+/** Interview rounds attached to an application. */
+export const talentInterviews = pgTable(
+  'talent_interviews',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    applicationId: uuid('application_id')
+      .notNull()
+      .references(() => talentApplications.id, { onDelete: 'cascade' }),
+    round: text('round').notNull(),
+    scheduledAt: timestamp('scheduled_at', { withTimezone: true }),
+    interviewType: text('interview_type').notNull().default('video'),
+    meetingLink: text('meeting_link'),
+    interviewer: text('interviewer'),
+    status: text('status').notNull().default('SCHEDULED'),
+    feedback: text('feedback'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('talent_interviews_application_id_idx').on(table.applicationId),
+    index('talent_interviews_scheduled_at_idx').on(table.scheduledAt),
+    index('talent_interviews_status_idx').on(table.status),
+  ]
+);
+
+/** Placements (a successful hire) plus the fee/payment tracking around them. */
+export const talentPlacements = pgTable(
+  'talent_placements',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    applicationId: uuid('application_id')
+      .notNull()
+      .references(() => talentApplications.id, { onDelete: 'cascade' }),
+    candidateId: uuid('candidate_id')
+      .notNull()
+      .references(() => talentCandidates.id, { onDelete: 'cascade' }),
+    clientId: uuid('client_id').references(() => talentClients.id, { onDelete: 'set null' }),
+    jobId: uuid('job_id').references(() => talentJobs.id, { onDelete: 'set null' }),
+    placementDate: timestamp('placement_date', { withTimezone: true }),
+    joiningDate: timestamp('joining_date', { withTimezone: true }),
+    /** Annual CTC in integer minor units (paise). */
+    annualCtc: integer('annual_ctc'),
+    feeType: text('fee_type').notNull().default('percentage'),
+    feePercentage: integer('fee_percentage'),
+    fixedFee: integer('fixed_fee'),
+    /** Computed fee in integer minor units; recomputed whenever inputs change. */
+    feeAmount: integer('fee_amount'),
+    paymentStatus: text('payment_status').notNull().default('PENDING'),
+    paymentDueDate: timestamp('payment_due_date', { withTimezone: true }),
+    replacementPeriodDays: integer('replacement_period_days'),
+    replacementUntil: timestamp('replacement_until', { withTimezone: true }),
+    notes: text('notes'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('talent_placements_application_id_unique_idx').on(table.applicationId),
+    index('talent_placements_client_id_idx').on(table.clientId),
+    index('talent_placements_payment_status_idx').on(table.paymentStatus),
+  ]
+);
+
+/**
+ * Candidate documents (resumes and other attachments).
+ *
+ * The file itself is NEVER stored in a public directory and the storage
+ * reference is never exposed to the browser: only metadata is described here,
+ * and download goes through an authenticated, Owner-only route that re-reads
+ * the file from private storage.
+ */
+export const talentDocuments = pgTable(
+  'talent_documents',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    candidateId: uuid('candidate_id')
+      .notNull()
+      .references(() => talentCandidates.id, { onDelete: 'cascade' }),
+    applicationId: uuid('application_id').references(() => talentApplications.id, {
+      onDelete: 'set null',
+    }),
+    kind: text('kind').notNull().default('resume'),
+    /** Sanitized original filename recorded for Owner display only. */
+    originalFilename: text('original_filename').notNull(),
+    /** Opaque storage key. Never a filesystem path, never public. */
+    storageKey: text('storage_key').notNull(),
+    mimeType: text('mime_type').notNull(),
+    byteSize: integer('byte_size').notNull(),
+    checksumSha256: text('checksum_sha256'),
+    uploadedByUserId: uuid('uploaded_by_user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    accessCount: integer('access_count').notNull().default(0),
+    lastAccessedAt: timestamp('last_accessed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('talent_documents_storage_key_unique_idx').on(table.storageKey),
+    index('talent_documents_candidate_id_idx').on(table.candidateId),
+    index('talent_documents_application_id_idx').on(table.applicationId),
+  ]
+);
+
+/** Append-only recruitment activity trail (Owner-facing operational history). */
+export const talentActivityLog = pgTable(
+  'talent_activity_log',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    actorUserId: uuid('actor_user_id').references(() => users.id, { onDelete: 'set null' }),
+    entityType: text('entity_type').notNull(),
+    entityId: text('entity_id').notNull(),
+    action: text('action').notNull(),
+    summary: text('summary'),
+    metadata: jsonb('metadata').notNull().default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('talent_activity_log_entity_idx').on(table.entityType, table.entityId),
+    index('talent_activity_log_created_at_idx').on(table.createdAt),
+    index('talent_activity_log_action_idx').on(table.action),
+  ]
+);
+
+/** ---------------------------------------------------------------------------
+ * Talent constants and row types
+ * --------------------------------------------------------------------------- */
+
+export type TalentClientRow = typeof talentClients.$inferSelect;
+export type NewTalentClientRow = typeof talentClients.$inferInsert;
+export type TalentJobRow = typeof talentJobs.$inferSelect;
+export type NewTalentJobRow = typeof talentJobs.$inferInsert;
+export type TalentCandidateRow = typeof talentCandidates.$inferSelect;
+export type NewTalentCandidateRow = typeof talentCandidates.$inferInsert;
+export type TalentApplicationRow = typeof talentApplications.$inferSelect;
+export type NewTalentApplicationRow = typeof talentApplications.$inferInsert;
+export type TalentInterviewRow = typeof talentInterviews.$inferSelect;
+export type TalentPlacementRow = typeof talentPlacements.$inferSelect;
+export type TalentDocumentRow = typeof talentDocuments.$inferSelect;
+export type TalentActivityRow = typeof talentActivityLog.$inferSelect;
+
+/** Client pipeline statuses. */
+export const TALENT_CLIENT_STATUSES = [
+  'PROSPECT',
+  'CONTACTED',
+  'REPLIED',
+  'CALL_SCHEDULED',
+  'REQUIREMENT_RECEIVED',
+  'ACTIVE_CLIENT',
+  'FUTURE',
+  'NOT_INTERESTED',
+] as const;
+export type TalentClientStatus = (typeof TALENT_CLIENT_STATUSES)[number];
+
+/** Job posting statuses. */
+export const TALENT_JOB_STATUSES = [
+  'DRAFT',
+  'OPEN',
+  'PAUSED',
+  'CLOSED',
+  'FILLED',
+  'CANCELLED',
+] as const;
+export type TalentJobStatus = (typeof TALENT_JOB_STATUSES)[number];
+
+/** Application pipeline statuses, in lifecycle order. */
+export const TALENT_APPLICATION_STATUSES = [
+  'NEW',
+  'SCREENING',
+  'CONTACTED',
+  'INTERESTED',
+  'SHORTLISTED',
+  'CLIENT_SUBMITTED',
+  'INTERVIEW',
+  'SELECTED',
+  'OFFER',
+  'JOINED',
+  'REJECTED',
+  'WITHDRAWN',
+  'NO_RESPONSE',
+  'ON_HOLD',
+] as const;
+export type TalentApplicationStatus = (typeof TALENT_APPLICATION_STATUSES)[number];
+
+/** Interview statuses. */
+export const TALENT_INTERVIEW_STATUSES = [
+  'SCHEDULED',
+  'COMPLETED',
+  'RESCHEDULED',
+  'NO_SHOW',
+  'CANCELLED',
+  'PASSED',
+  'FAILED',
+] as const;
+export type TalentInterviewStatus = (typeof TALENT_INTERVIEW_STATUSES)[number];
+
+/** Placement payment statuses. */
+export const TALENT_PAYMENT_STATUSES = [
+  'PENDING',
+  'INVOICED',
+  'PARTIALLY_PAID',
+  'PAID',
+  'OVERDUE',
+  'WAIVED',
+] as const;
+export type TalentPaymentStatus = (typeof TALENT_PAYMENT_STATUSES)[number];
+
+/** Fee models supported by the placement fee calculator. */
+export const TALENT_FEE_TYPES = ['percentage', 'fixed', 'hybrid'] as const;
+export type TalentFeeType = (typeof TALENT_FEE_TYPES)[number];
+
+/** Recruitment consent states. Applications require 'granted'. */
+export const TALENT_CONSENT_STATUSES = ['pending', 'granted', 'withdrawn'] as const;
+export type TalentConsentStatus = (typeof TALENT_CONSENT_STATUSES)[number];

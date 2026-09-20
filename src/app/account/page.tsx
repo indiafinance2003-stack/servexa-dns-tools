@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { requireUser } from '@/lib/auth/require-user';
 import { listSavedAnalyses, SavedAnalysisSummary } from '@/lib/account/saved-analyses';
 import { SavedAnalysesList } from '@/components/account/saved-analyses-list';
+import { AccountNav } from '@/components/account/account-nav';
 
 export const metadata: Metadata = {
   title: 'Your Account',
@@ -45,6 +46,7 @@ export default async function AccountPage(): Promise<React.ReactElement> {
           </button>
         </form>
       </div>
+      <AccountNav />
 
       <section className="mt-8 rounded-xl border border-line bg-white p-6">
         <h2 className="text-lg font-semibold text-ink">Profile</h2>

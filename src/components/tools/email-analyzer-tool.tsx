@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
 import { apiPost, formatApiError } from '@/lib/client/api';
@@ -67,7 +67,7 @@ export function EmailAnalyzerTool(): React.ReactElement {
               disabled={loading}
               className="rounded-md bg-accent px-4 py-2 font-medium text-white hover:bg-accent-strong disabled:opacity-60"
             >
-              {loading ? 'Analyzingâ€¦' : 'Analyze'}
+              {loading ? 'Analyzing…' : 'Analyze'}
             </button>
           </div>
         </div>
@@ -84,18 +84,18 @@ function EmailResults({ result }: { result: EmailAnalysis }): React.ReactElement
       <section className="rounded-xl border border-line bg-white p-6">
         <h2 className="mb-2 font-semibold text-ink">Summary</h2>
         <p className="text-sm text-slate-700">
-          {result.summary.headerCount} headers Â· {result.summary.hopCount} Received hops Â·{' '}
-          {result.summary.dkimSignatureCount} DKIM-Signature header(s) Â· {result.summary.reportedAuthMethodCount} reported
+          {result.summary.headerCount} headers · {result.summary.hopCount} Received hops ·{' '}
+          {result.summary.dkimSignatureCount} DKIM-Signature header(s) · {result.summary.reportedAuthMethodCount} reported
           authentication method(s)
         </p>
       </section>
       <section className="rounded-xl border border-line bg-white p-6">
         <h2 className="mb-2 font-semibold text-ink">Sender / Recipients</h2>
         <dl className="grid gap-2 text-sm sm:grid-cols-2">
-          <div><dt className="text-slate-500">From</dt><dd className="text-ink">{result.senderRecipients.from || 'â€”'}</dd></div>
-          <div><dt className="text-slate-500">Return-Path</dt><dd className="text-ink">{result.senderRecipients.returnPath || 'â€”'}</dd></div>
-          <div><dt className="text-slate-500">To</dt><dd className="text-ink">{result.senderRecipients.to.join(', ') || 'â€”'}</dd></div>
-          <div><dt className="text-slate-500">Reply-To</dt><dd className="text-ink">{result.senderRecipients.replyTo || 'â€”'}</dd></div>
+          <div><dt className="text-slate-500">From</dt><dd className="text-ink">{result.senderRecipients.from || '—'}</dd></div>
+          <div><dt className="text-slate-500">Return-Path</dt><dd className="text-ink">{result.senderRecipients.returnPath || '—'}</dd></div>
+          <div><dt className="text-slate-500">To</dt><dd className="text-ink">{result.senderRecipients.to.join(', ') || '—'}</dd></div>
+          <div><dt className="text-slate-500">Reply-To</dt><dd className="text-ink">{result.senderRecipients.replyTo || '—'}</dd></div>
         </dl>
       </section>
       <section className="rounded-xl border border-line bg-white p-6">
@@ -121,7 +121,7 @@ function EmailResults({ result }: { result: EmailAnalysis }): React.ReactElement
           {result.authentication.detectedEvidence.arcHeaderCount}
         </p>
         <h3 className="mt-4 text-sm font-medium text-ink">Verification performed by this tool</h3>
-        <p className="text-sm text-ink">SPF not performed Â· DKIM not performed Â· DMARC not performed</p>
+        <p className="text-sm text-ink">SPF not performed · DKIM not performed · DMARC not performed</p>
       </section>
       <section className="rounded-xl border border-line bg-white p-6">
         <h2 className="mb-2 font-semibold text-ink">Received chain</h2>
@@ -142,11 +142,11 @@ function EmailResults({ result }: { result: EmailAnalysis }): React.ReactElement
               {result.receivedChain.hops.map((hop, index) => (
                 <tr key={hop.rawContent} className="border-b border-slate-100 align-top">
                   <td className="px-2 py-2 text-ink">{index + 1}</td>
-                  <td className="px-2 py-2 text-ink">{hop.from || 'â€”'}</td>
-                  <td className="px-2 py-2 text-ink">{hop.by || 'â€”'}</td>
-                  <td className="px-2 py-2 text-ink">{hop.with || 'â€”'}</td>
-                  <td className="px-2 py-2 text-ink">{hop.ipAddresses.join(', ') || 'â€”'}</td>
-                  <td className="px-2 py-2 text-ink">{hop.timestamp || 'â€”'}</td>
+                  <td className="px-2 py-2 text-ink">{hop.from || '—'}</td>
+                  <td className="px-2 py-2 text-ink">{hop.by || '—'}</td>
+                  <td className="px-2 py-2 text-ink">{hop.with || '—'}</td>
+                  <td className="px-2 py-2 text-ink">{hop.ipAddresses.join(', ') || '—'}</td>
+                  <td className="px-2 py-2 text-ink">{hop.timestamp || '—'}</td>
                 </tr>
               ))}
             </tbody>
@@ -158,7 +158,7 @@ function EmailResults({ result }: { result: EmailAnalysis }): React.ReactElement
         <ul className="space-y-2 text-sm">
           {result.domains.map((item) => (
             <li key={item.label} className="text-ink">
-              <strong>{item.label}:</strong> {item.domains.join(', ') || 'â€”'}
+              <strong>{item.label}:</strong> {item.domains.join(', ') || '—'}
               <p className="text-muted">{item.note}</p>
             </li>
           ))}
