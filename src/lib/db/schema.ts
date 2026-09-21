@@ -60,6 +60,32 @@ export const sessions = pgTable(
 );
 
 /**
+ * Password reset tokens. Only a SHA-256 hash of the token is stored; the raw
+ * token exists exclusively in server memory, the reset URL, and the emitted
+ * reset email. Tokens expire server-side after 30 minutes and are single use
+ * (consumed via an atomic conditional update, so concurrent replay of the same
+ * token can never succeed twice).
+ */
+export const passwordResetTokens = pgTable(
+  'password_reset_tokens',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    usedAt: timestamp('used_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('password_reset_tokens_token_hash_unique_idx').on(table.tokenHash),
+    index('password_reset_tokens_user_id_idx').on(table.userId),
+    index('password_reset_tokens_expires_at_idx').on(table.expiresAt),
+  ]
+);
+
+/**
  * Saved analyses. Only explicitly user-initiated saves are stored. Raw email
  * headers are never persisted; email analysis is intentionally not saveable.
  */
@@ -84,6 +110,7 @@ export const savedAnalyses = pgTable(
 export type UserRow = typeof users.$inferSelect;
 export type NewUserRow = typeof users.$inferInsert;
 export type SessionRow = typeof sessions.$inferSelect;
+export type PasswordResetTokenRow = typeof passwordResetTokens.$inferSelect;
 export type SavedAnalysisRow = typeof savedAnalyses.$inferSelect;
 
 /** ---------------------------------------------------------------------------

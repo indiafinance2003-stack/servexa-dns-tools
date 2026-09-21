@@ -144,3 +144,18 @@ export async function deleteExpiredSessions(): Promise<number> {
     .returning({ id: sessions.id });
   return deleted.length;
 }
+
+/**
+ * Deletes every session belonging to a single user and returns how many were
+ * removed. Used after a password reset so that previously authenticated
+ * sessions (including the cookie in the attacker's or the user's browser) are
+ * invalidated. Never touches other users' sessions.
+ */
+export async function deleteAllUserSessions(userId: string): Promise<number> {
+  const { db } = getDatabase();
+  const deleted = await db
+    .delete(sessions)
+    .where(eq(sessions.userId, userId))
+    .returning({ id: sessions.id });
+  return deleted.length;
+}

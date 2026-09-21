@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { LoginForm } from '@/components/auth/login-form';
 import { getSessionUser } from '@/lib/auth/session';
 
@@ -24,6 +25,11 @@ export default async function LoginPage(): Promise<React.ReactElement> {
       <div className="mt-8 rounded-xl border border-line bg-navy-surface p-6">
         <LoginForm />
       </div>
+      <p className="mt-4 text-center text-sm text-muted">
+        <Link href="/forgot-password" className="font-medium text-accent hover:text-accent-strong">
+          Forgot password?
+        </Link>
+      </p>
     </div>
   );
 }

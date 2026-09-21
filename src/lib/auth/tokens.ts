@@ -14,6 +14,21 @@ export function hashSessionToken(token: string): string {
   return createHash('sha256').update(token, 'utf8').digest('hex');
 }
 
+/**
+ * Password reset tokens use the same primitive as session tokens: at least 32
+ * cryptographically secure random bytes rendered as a URL-safe base64url
+ * string. Only the SHA-256 hash is ever persisted; the raw token exists only in
+ * server memory, the reset URL, and the emitted reset email — and must never be
+ * logged, stored in analytics, or included in error messages.
+ */
+export function generatePasswordResetToken(): string {
+  return randomBytes(32).toString('base64url');
+}
+
+export function hashPasswordResetToken(token: string): string {
+  return createHash('sha256').update(token, 'utf8').digest('hex');
+}
+
 export function safeEqual(a: string, b: string): boolean {
   const bufferA = Buffer.from(a, 'utf8');
   const bufferB = Buffer.from(b, 'utf8');

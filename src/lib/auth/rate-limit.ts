@@ -20,9 +20,15 @@ export const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 export const LOGIN_MAX_ATTEMPTS = 8;
 export const REGISTER_WINDOW_MS = 60 * 60 * 1000;
 export const REGISTER_MAX_ATTEMPTS = 5;
+export const FORGOT_PASSWORD_WINDOW_MS = 15 * 60 * 1000;
+export const FORGOT_PASSWORD_MAX_ATTEMPTS = 5;
+export const FORGOT_PASSWORD_CLIENT_WINDOW_MS = 15 * 60 * 1000;
+export const FORGOT_PASSWORD_CLIENT_MAX_ATTEMPTS = 10;
 
 let loginLimiter: RateLimiter | undefined;
 let registerLimiter: RateLimiter | undefined;
+let forgotPasswordLimiter: RateLimiter | undefined;
+let forgotPasswordClientLimiter: RateLimiter | undefined;
 
 export function getLoginRateLimiter(): RateLimiter {
   if (!loginLimiter) {
@@ -36,6 +42,35 @@ export function getRegisterRateLimiter(): RateLimiter {
     registerLimiter = createRateLimiter(REGISTER_WINDOW_MS, REGISTER_MAX_ATTEMPTS);
   }
   return registerLimiter;
+}
+
+/**
+ * Per email+client forgot-password limiter: 5 requests per 15 minutes. Prevents
+ * an attacker from hammering a single account with reset requests.
+ */
+export function getForgotPasswordRateLimiter(): RateLimiter {
+  if (!forgotPasswordLimiter) {
+    forgotPasswordLimiter = createRateLimiter(
+      FORGOT_PASSWORD_WINDOW_MS,
+      FORGOT_PASSWORD_MAX_ATTEMPTS
+    );
+  }
+  return forgotPasswordLimiter;
+}
+
+/**
+ * Broader client-identity forgot-password limiter: 10 requests per 15 minutes
+ * regardless of which email is submitted. Stops a single client from probing
+ * many different addresses.
+ */
+export function getForgotPasswordClientRateLimiter(): RateLimiter {
+  if (!forgotPasswordClientLimiter) {
+    forgotPasswordClientLimiter = createRateLimiter(
+      FORGOT_PASSWORD_CLIENT_WINDOW_MS,
+      FORGOT_PASSWORD_CLIENT_MAX_ATTEMPTS
+    );
+  }
+  return forgotPasswordClientLimiter;
 }
 
 export function clientIdentity(req: NextRequest): string {
@@ -56,6 +91,14 @@ export function loginKey(req: NextRequest, email: string): string {
 
 export function registerKey(req: NextRequest): string {
   return `register:${clientIdentity(req)}`;
+}
+
+export function forgotPasswordKey(req: NextRequest, email: string): string {
+  return `forgot-password:${clientIdentity(req)}:${email}`;
+}
+
+export function forgotPasswordClientKey(req: NextRequest): string {
+  return `forgot-password:${clientIdentity(req)}`;
 }
 
 /** Throws a 429 RateLimitError when the limiter rejects the key. */
