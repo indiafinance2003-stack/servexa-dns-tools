@@ -1,5 +1,4 @@
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
-import { config } from '@/lib/config';
 import { dbFromRequest } from '@/lib/db/request';
 import {
   supportMessages,
@@ -27,7 +26,7 @@ import {
   statusAfterCustomerReply,
 } from './policy';
 import { createTicketSchema, type CreateTicketInput } from './schemas';
-import { getManagedSupportEntitlement } from './entitlement';
+import { requireManagedSupportEntitlement } from './entitlement';
 import { generateTicketReference } from './reference';
 import { safeCreateNotification } from '@/lib/notifications/notifications';
 
@@ -112,7 +111,6 @@ function toCustomerMessage(row: SupportMessageRow) {
 
 export interface CreateTicketResult {
   ticket: CustomerTicketDetail;
-  entitlementUsed: 'managed_support' | 'public_request';
 }
 
 /**
@@ -136,33 +134,19 @@ async function requireOwnedTicket(userId: string, ticketId: string): Promise<Sup
 /**
  * Creates a ticket for the authenticated customer.
  *
- * The origin is decided by the verified entitlement, NOT by the client:
- *   - an entitled account gets a `managed_support` ticket;
- *   - an account without a plan gets a `public_request` ticket, which is
- *     clearly labelled so support staff know no service agreement is in place.
- *
- * Limits are enforced against the ticket's own origin bucket so a public
- * request can never consume a Managed Support allowance and vice versa.
+ * Managed Support is the only way to create tickets. The entitlement is checked
+ * here (and at the API boundary) and is derived exclusively from the verified
+ * subscription record — never from a client-supplied flag. An account without
+ * an active entitlement gets SupportEntitlementRequiredError and no ticket row
+ * is ever inserted.
  */
 export async function createCustomerTicket(
   userId: string,
-  input: CreateTicketInput,
-  options: { origin?: 'managed_support' | 'public_request' } = {}
+  input: CreateTicketInput
 ): Promise<CreateTicketResult> {
   const parsed = parseWithSchema(createTicketSchema, input);
-  const entitlement = await getManagedSupportEntitlement(userId);
-
-  // `options.origin` lets callers deliberately request the public flow (for
-  // example /support/request). A client can never ask for `managed_support`.
-  const requestedPublic = options.origin === 'public_request';
-  const origin: 'managed_support' | 'public_request' =
-    entitlement.entitled && !requestedPublic ? 'managed_support' : 'public_request';
-
-  if (origin === 'managed_support' && !entitlement.entitled) {
-    // Defensive: cannot happen given the branch above, but keeps the invariant
-    // explicit if the logic is ever changed.
-    throw new SupportLimitReachedError('Managed Support is not active on this account.');
-  }
+  const entitlement = await requireManagedSupportEntitlement(userId);
+  const origin: 'managed_support' = 'managed_support';
 
   const { db } = dbFromRequest();
 
@@ -178,16 +162,11 @@ export async function createCustomerTicket(
     );
 
   const activeCount = activeRows[0]?.count ?? 0;
-  const limit =
-    origin === 'managed_support'
-      ? entitlement.maxOpenTickets
-      : config.SUPPORT_MAX_OPEN_PUBLIC_REQUESTS;
+  const limit = entitlement.maxOpenTickets;
 
   if (exceedsOpenTicketLimit(activeCount, limit)) {
     throw new SupportLimitReachedError(
-      origin === 'managed_support'
-        ? `You have reached the open ticket limit (${limit}) included in Managed Support. Close or resolve an existing ticket first.`
-        : `You already have ${activeCount} open support request(s). Close one of them before opening another.`
+      `You have reached the open ticket limit (${limit}) included in Managed Support. Close or resolve an existing ticket first.`
     );
   }
 
@@ -209,7 +188,7 @@ export async function createCustomerTicket(
       affectedDomain: parsed.affectedDomain ?? null,
       relatedTool: tool,
       serviceSlug: serviceSlugForCategory(parsed.category),
-      entitlementSource: origin === 'managed_support' ? 'subscription' : 'public_request_flow',
+      entitlementSource: 'subscription',
       contextJson: context,
       lastMessageAt: new Date(),
     })
@@ -228,17 +207,13 @@ export async function createCustomerTicket(
   await safeCreateNotification({
     userId,
     type: 'ticket_created',
-    title:
-      origin === 'managed_support'
-        ? `Support ticket ${ticket.reference} created`
-        : `Support request ${ticket.reference} received`,
+    title: `Support ticket ${ticket.reference} created`,
     body: parsed.subject,
     link: `/account/support/${ticket.id}`,
   });
 
   return {
     ticket: await getCustomerTicket(userId, ticket.id),
-    entitlementUsed: origin,
   };
 }
 

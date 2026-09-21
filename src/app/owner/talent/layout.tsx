@@ -35,7 +35,7 @@ export default async function OwnerTalentLayout({ children }: { children: ReactN
           <Link
             key={section.href}
             href={section.href}
-            className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-white hover:text-accent"
+            className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-400 transition hover:bg-navy-surface hover:text-accent"
           >
             {section.label}
           </Link>

@@ -100,7 +100,7 @@ export function requiresManagedSupportEntitlement(origin: string): boolean {
 
 /** Whether an origin is allowed to be created through the customer-facing API. */
 export function isCustomerCreatableOrigin(origin: string): boolean {
-  return origin === 'managed_support' || origin === 'public_request';
+  return origin === 'managed_support';
 }
 
 /** Number of active (non-terminal) tickets, used for plan limits. */

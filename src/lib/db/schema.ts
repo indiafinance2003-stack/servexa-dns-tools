@@ -105,10 +105,8 @@ export const supportTickets = pgTable(
     status: text('status').notNull().default('open'),
     affectedDomain: text('affected_domain'),
     relatedTool: text('related_tool'),
-    // How this ticket was created. 'managed_support' = created by a customer
-    // with an active Managed Support entitlement. 'public_request' = a general
-    // support request from a signed-in account without Managed Support, which
-    // does not consume Managed Support capacity.
+    // How this ticket was created. All tickets are 'managed_support': they are
+    // created by customers with an active Managed Support entitlement.
     origin: text('origin').notNull().default('managed_support'),
     // Operational classification of who is expected to resolve the issue.
     responsibility: text('responsibility').notNull().default('unassigned'),
@@ -448,11 +446,10 @@ export const SUPPORT_STATUSES = ['open', 'in_progress', 'waiting_for_customer', 
 export type SupportStatus = (typeof SUPPORT_STATUSES)[number];
 
 /**
- * How a support ticket was created. 'managed_support' requires an active
- * Managed Support entitlement; 'public_request' is the general request flow for
- * a signed-in account without that entitlement.
+ * How a support ticket was created. Every customer-facing ticket requires an
+ * active Managed Support entitlement; there is no public request flow.
  */
-export const SUPPORT_ORIGINS = ['managed_support', 'public_request'] as const;
+export const SUPPORT_ORIGINS = ['managed_support'] as const;
 export type SupportOrigin = (typeof SUPPORT_ORIGINS)[number];
 
 /**
@@ -879,3 +876,140 @@ export type TalentFeeType = (typeof TALENT_FEE_TYPES)[number];
 /** Recruitment consent states. Applications require 'granted'. */
 export const TALENT_CONSENT_STATUSES = ['pending', 'granted', 'withdrawn'] as const;
 export type TalentConsentStatus = (typeof TALENT_CONSENT_STATUSES)[number];
+
+/** ---------------------------------------------------------------------------
+ * Payments — checkout sessions
+ *
+ * A checkout session is created when a customer attempts to buy Managed
+ * Support. It records the exact price quoted, so the amount can never be
+ * tampered with between quoting and payment. Status transitions are driven
+ * ONLY by verified provider events (order confirmation, webhook, signature
+ * verification). No code path fakes a successful payment.
+ * --------------------------------------------------------------------------- */
+
+export const CHECKOUT_SESSION_STATUSES = [
+  'pending',
+  'paid',
+  'failed',
+  'cancelled',
+  'refunded',
+  'expired',
+] as const;
+export type CheckoutSessionStatus = (typeof CHECKOUT_SESSION_STATUSES)[number];
+
+export const checkoutSessions = pgTable(
+  'checkout_sessions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    // Plan being purchased (always 'managed_support' today; column exists so the
+    // checkout is plan-aware without schema churn).
+    plan: text('plan').notNull().default('managed_support'),
+    currency: text('currency').notNull().default('INR'),
+    // Quoted amount in minor units at checkout time. Never re-read from config
+    // afterwards: the customer agreed to THIS amount.
+    amountMinor: integer('amount_minor').notNull(),
+    billingInterval: text('billing_interval').notNull().default('monthly'),
+    status: text('status').notNull().default('pending'),
+    // Provider order/session id (e.g. the Razorpay order id).
+    providerSessionId: text('provider_session_id'),
+    // Stable internal receipt the provider echoes back (order.receipt).
+    providerReceiptId: text('provider_receipt_id'),
+    // Failure/cancellation reason supplied by the provider (audit trail only).
+    failureReason: text('failure_reason'),
+    paidAt: timestamp('paid_at', { withTimezone: true }),
+    // Optional client/device metadata captured at checkout (never sensitive).
+    metadataJson: jsonb('metadata_json'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('checkout_sessions_user_id_created_at_idx').on(table.userId, table.createdAt),
+    index('checkout_sessions_provider_session_id_idx').on(table.providerSessionId),
+    index('checkout_sessions_status_idx').on(table.status),
+  ]
+);
+
+/** ---------------------------------------------------------------------------
+ * Customer feedback
+ *
+ * Submitted by any signed-in customer from the account portal. Feedback is
+ * private (owner-facing) and never shown publicly.
+ * --------------------------------------------------------------------------- */
+
+export const FEEDBACK_CATEGORIES = [
+  'tools',
+  'dns',
+  'email',
+  'account',
+  'billing',
+  'support',
+  'other',
+] as const;
+export type FeedbackCategory = (typeof FEEDBACK_CATEGORIES)[number];
+
+export const FEEDBACK_STATUSES = ['new', 'acknowledged', 'addressed'] as const;
+export type FeedbackStatus = (typeof FEEDBACK_STATUSES)[number];
+
+export const customerFeedback = pgTable(
+  'customer_feedback',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    rating: integer('rating').notNull(),
+    category: text('category').notNull().default('other'),
+    message: text('message').notNull(),
+    status: text('status').notNull().default('new'),
+    handledAt: timestamp('handled_at', { withTimezone: true }),
+    handledByUserId: uuid('handled_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('customer_feedback_user_id_created_at_idx').on(table.userId, table.createdAt),
+    index('customer_feedback_status_idx').on(table.status),
+  ]
+);
+
+/** ---------------------------------------------------------------------------
+ * Contact submissions
+ *
+ * The public contact form writes here for owner review. Unauthenticated, so
+ * strict rate limiting and a honeypot are enforced at the API boundary and an
+ * IP fingerprint (SHA-256, never the raw address) is stored for abuse review.
+ * --------------------------------------------------------------------------- */
+
+export const CONTACT_SUBMISSION_STATUSES = ['new', 'reviewed', 'actioned', 'spam'] as const;
+export type ContactSubmissionStatus = (typeof CONTACT_SUBMISSION_STATUSES)[number];
+
+export const contactSubmissions = pgTable(
+  'contact_submissions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    email: text('email').notNull(),
+    name: text('name').notNull(),
+    subject: text('subject').notNull(),
+    message: text('message').notNull(),
+    status: text('status').notNull().default('new'),
+    // SHA-256 fingerprint of the client IP; supports spam review without
+    // storing personally identifying address data.
+    ipFingerprint: text('ip_fingerprint'),
+    handledByUserId: uuid('handled_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('contact_submissions_status_created_at_idx').on(table.status, table.createdAt),
+    index('contact_submissions_ip_fingerprint_idx').on(table.ipFingerprint),
+  ]
+);
+
+export type CheckoutSessionRow = typeof checkoutSessions.$inferSelect;
+export type NewCheckoutSessionRow = typeof checkoutSessions.$inferInsert;
+export type CustomerFeedbackRow = typeof customerFeedback.$inferSelect;
+export type NewCustomerFeedbackRow = typeof customerFeedback.$inferInsert;
+export type ContactSubmissionRow = typeof contactSubmissions.$inferSelect;
+export type NewContactSubmissionRow = typeof contactSubmissions.$inferInsert;

@@ -8,6 +8,7 @@ import {
   type SubscriptionStatus,
 } from '@/lib/db/schema';
 import { findPlan, managedSupportPlan } from '@/lib/plans/catalog';
+import { isPaymentConfigured } from './providers';
 
 /**
  * Subscription read foundation.
@@ -137,7 +138,7 @@ export async function getCurrentSubscription(userId: string): Promise<Subscripti
  * checkout that cannot complete.
  */
 export function canPurchaseManagedSupport(): boolean {
-  return config.BILLING_PROVIDER.length > 0 && managedSupportPlan().price !== null;
+  return isPaymentConfigured() && managedSupportPlan().price !== null;
 }
 
 /** Display metadata for the billing page (plan price, currency, interval). */
@@ -156,6 +157,6 @@ export function billingDisplayInfo(): {
     amountMinor: plan.price?.amountMinor ?? 0,
     currency: plan.price?.currency ?? config.MANAGED_SUPPORT_CURRENCY,
     interval: plan.price?.interval ?? 'monthly',
-    providerConfigured: config.BILLING_PROVIDER.length > 0,
+    providerConfigured: isPaymentConfigured(),
   };
 }

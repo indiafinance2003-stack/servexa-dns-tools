@@ -35,7 +35,7 @@ export default async function SearchPage({ searchParams }: PageProps): Promise<R
             maxLength={100}
             placeholder="e.g. email bounced"
             aria-label="Search guides"
-            className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus:border-accent"
+            className="w-full rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink outline-none focus:border-accent"
           />
           <button
             type="submit"
@@ -60,7 +60,7 @@ export default async function SearchPage({ searchParams }: PageProps): Promise<R
                       {article.title}
                     </Link>
                     {article.description ? (
-                      <p className="mt-0.5 text-sm text-slate-600">{article.description}</p>
+                      <p className="mt-0.5 text-sm text-slate-400">{article.description}</p>
                     ) : null}
                   </li>
                 ))}

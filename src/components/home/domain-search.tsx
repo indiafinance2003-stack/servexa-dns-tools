@@ -24,8 +24,8 @@ export function DomainSearch({
 
   const inputClasses =
     size === 'lg'
-      ? 'h-12 flex-1 rounded-md border border-line bg-white px-4 text-base text-ink placeholder:text-slate-400 focus:border-accent'
-      : 'h-10 flex-1 rounded-md border border-line bg-white px-3 text-sm text-ink placeholder:text-slate-400 focus:border-accent';
+      ? 'h-12 flex-1 rounded-md border border-line bg-navy-surface px-4 text-base text-ink placeholder:text-slate-400 focus:border-accent'
+      : 'h-10 flex-1 rounded-md border border-line bg-navy-surface px-3 text-sm text-ink placeholder:text-slate-400 focus:border-accent';
   const buttonClasses =
     size === 'lg'
       ? 'h-12 shrink-0 rounded-md bg-accent px-6 text-base font-medium text-white hover:bg-accent-strong'

@@ -32,7 +32,7 @@ export function LoginForm(): React.ReactElement {
   return (
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
       {error ? (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+        <p role="alert" className="rounded-md bg-red-500/10 p-3 text-sm text-red-300">
           {error}
         </p>
       ) : null}
@@ -71,7 +71,7 @@ export function LoginForm(): React.ReactElement {
       >
         {loading ? 'Signing in…' : 'Sign in'}
       </button>
-      <p className="text-center text-sm text-slate-600">
+      <p className="text-center text-sm text-slate-400">
         No account yet?{' '}
         <Link href="/register" className="font-medium text-accent hover:text-accent-strong">
           Create one

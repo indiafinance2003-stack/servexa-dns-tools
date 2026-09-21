@@ -41,7 +41,7 @@ export default async function TalentApplyPage({ params }: Props) {
           Open positions
         </Link>
         <span aria-hidden="true"> / </span>
-        <span className="text-slate-700">{job.jobId}</span>
+        <span className="text-slate-300">{job.jobId}</span>
       </nav>
       <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink">Apply: {job.title}</h1>
       <p className="mt-2 text-sm text-muted">

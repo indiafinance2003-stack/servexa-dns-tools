@@ -17,7 +17,7 @@ export default function NotFound(): React.ReactElement {
         </Link>
         <Link
           href="/dns/analyze"
-          className="rounded-md border border-line bg-white px-4 py-2 text-sm font-medium text-ink hover:border-accent hover:text-accent"
+          className="rounded-md border border-line bg-navy-surface px-4 py-2 text-sm font-medium text-ink hover:border-accent hover:text-accent"
         >
           Analyze a domain
         </Link>

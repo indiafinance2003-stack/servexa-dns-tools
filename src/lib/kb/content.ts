@@ -1529,4 +1529,670 @@ export const KB_ARTICLES: KbArticleContent[] = [
       },
     ],
   },
+  {
+    slug: 'dns-record-types-explained',
+    categorySlug: 'dns-and-nameservers',
+    title: 'DNS record types explained (A, AAAA, CNAME, MX, TXT, NS, SRV, CAA)',
+    description:
+      'What the common DNS record types actually control, what each value means, and how to check them with the DNS Lookup tool.',
+    readingTimeMinutes: 8,
+    relatedTools: [
+      { label: 'DNS Lookup', href: '/dns/lookup' },
+      { label: 'DNS Health', href: '/dns/analyze' },
+    ],
+    relatedArticles: ['nameserver-change-checklist', 'domain-not-connecting-to-hosting'],
+    sections: [
+      {
+        kind: 'text',
+        heading: 'Problem',
+        paragraphs: [
+          'A domain uses several different record types at once, and it is easy to confuse which record does what. This guide explains the records Ravelyth checks and what their answers mean.',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'The record types in plain terms',
+        items: [
+          'A — maps a hostname to an IPv4 address. The core "where does this site actually live" record.',
+          'AAAA — maps a hostname to an IPv6 address. Same role as A for IPv6-only or dual-stack networks.',
+          'CNAME — aliases one hostname to another ("www points to apex"). CNAME records for the apex and conflicting record types are common configuration errors.',
+          'MX — the mail exchanger: the host(s) that receive email for the domain, with a preference number that decides priority.',
+          'TXT — free-form text records; used for SPF, DKIM (as part of the selector), DMARC, domain verification and anti-spoofing.',
+          'NS — the authoritative nameservers for the domain. Changing these moves control of the whole zone.',
+          'SRV — service locator records used by some protocols (voice, some messaging and LDAP services).',
+          'CAA — certificate authority authorization: which CAs are allowed to issue HTTPS certificates for the domain.',
+        ],
+      },
+      {
+        kind: 'steps',
+        heading: 'How to read an answer',
+        steps: [
+          {
+            title: 'Look at the class and TTL first',
+            detail:
+              'Answers normally show "IN" (the Internet class) and a TTL in seconds. A near-zero TTL means the value was cached moments ago or the record legitimately uses a short TTL.',
+          },
+          {
+            title: 'Match the record to its job',
+            detail:
+              'For email problems check MX and the SPF/DKIM/DMARC TXT records. For website problems check A/AAAA/CNAME and NS propagation.',
+          },
+          {
+            title: 'Compare resolver views',
+            detail:
+              'If one resolver answers with a different value than another, DNS propagation is incomplete or there are multiple DNS providers.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Common mistakes',
+        items: [
+          'Adding TXT lines over 255 characters (each segment must fit a 255-byte limit).',
+          'Pointing www to an IP with an A record instead of matching the site configuration.',
+          'Setting MX without a matching A/AAAA for the mail host.',
+          'Editing the wrong zone (e.g. the registrar DNS panel instead of the host).',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Prevention',
+        items: [
+          'Use the DNS Lookup tool and confirm every record you meant to publish before and after an edit.',
+          'Keep a written map of your records: which host, which type, which provider panel.',
+          'After any type change, re-run DNS Health.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'lowering-dns-ttl-before-a-change',
+    categorySlug: 'dns-and-nameservers',
+    title: 'Lower the DNS TTL before a planned change (and always at least hours, not minutes)',
+    description:
+      'Why a low TTL before a planned DNS change makes cutovers fast, and the safe order to lower, change, and raise it.',
+    readingTimeMinutes: 5,
+    relatedTools: [{ label: 'DNS Lookup', href: '/dns/lookup' }],
+    relatedArticles: ['dns-propagation-not-updating'],
+    sections: [
+      {
+        kind: 'text',
+        heading: 'Problem',
+        paragraphs: [
+          'IP addresses, MX hosts or nameservers will change, and you want the internet to pick up the new value quickly instead of waiting for stale answers.',
+        ],
+      },
+      {
+        kind: 'text',
+        heading: 'How TTL works',
+        paragraphs: [
+          'TTL (time-to-live) is the number of seconds a resolver is allowed to reuse a cached answer. If the TTL is 86,400 (one day), a resolver may keep an old A record cached for up to a day even after you publish the new one.',
+        ],
+      },
+      {
+        kind: 'steps',
+        heading: 'The safe cutover order',
+        steps: [
+          {
+            title: 'Lower the TTL before the change',
+            detail:
+              'Publish the new TTL (for example 300 seconds) on the records that will change and wait at least the previous TTL duration so caches drop the old long value.',
+          },
+          {
+            title: 'Make the actual change',
+            detail:
+              'Repoint the record. Because resolvers now hold only short-lived answers, the new value spreads in minutes.',
+          },
+          {
+            title: 'Raise the TTL again after it settles',
+            detail:
+              'After the change has propagated (verified with multiple resolvers), raise the TTL back (for example to 3600 or 86400) to reduce resolver load.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Common mistakes',
+        items: [
+          'Lowering the TTL only after the change — the old long-TTL answers keep coming for up to the old TTL.',
+          'Lowering the TTL to a few seconds. Very short TTLs increase lookup volume and some resolvers ignore them.',
+          'Forgetting to lower the NS record TTL well before a nameserver change (NS changes are frequently slow because of glue and parent-zone caching).',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Verification',
+        items: [
+          'Use DNS Lookup against two different resolvers and confirm both show the new value.',
+          'Check the TTL in the answers: it should start at the new short value right after the cutover.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'spf-include-limits-and-flattening',
+    categorySlug: 'email-authentication',
+    title: 'SPF, the 10-lookup limit, and why "flattening" exists',
+    description:
+      'Why SPF breaks when there are too many mechanisms, how the lookup limit works, and how flattening fixes it.',
+    readingTimeMinutes: 6,
+    relatedTools: [{ label: 'SPF Check', href: '/dns/spf' }],
+    relatedArticles: ['spf-dkim-dmarc-basics'],
+    sections: [
+      {
+        kind: 'text',
+        heading: 'Problem',
+        paragraphs: [
+          'Legitimate senders (a CRM, a newsletter provider, a second mail server) are added with include: entries, and suddenly SPF fails or is ignored.',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Symptoms',
+        items: [
+          'SPF results report "permfail", "temperror" or "permerror".',
+          'Receivers flag mail as suspicious or treat SPF as not passing.',
+          'Adding one more include: pushes SPF over the limit.',
+        ],
+      },
+      {
+        kind: 'text',
+        heading: 'The 10-lookup rule',
+        paragraphs: [
+          'A receiver must complete SPF evaluation within a small number of DNS queries. Each include:, redirect: and several other mechanisms counts toward the limit; a common bound is 10. When the limit is hit, evaluation fails and the result becomes a permanent error regardless of the other mechanisms.',
+        ],
+      },
+      {
+        kind: 'steps',
+        heading: 'Diagnose',
+        steps: [
+          {
+            title: 'Run the SPF check',
+            detail:
+              'The SPF tool lists every mechanism and when there are too many lookups it marks the record as exceeding the limit.',
+          },
+          {
+            title: 'Count includes and redirects',
+            detail:
+              'Look at how many include: and redirect: entries exist and whether the included records themselves reference further includes.',
+          },
+          {
+            title: 'Decide: simplify or flatten',
+            detail:
+              'Remove mechanisms that no longer send mail, or "flatten" the record by expanding the include targets into a single list of IP ranges.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Prevention',
+        items: [
+          'Re-run the SPF check every time you add an email provider.',
+          'Keep the record in one place (prefer a single SPF TXT record; multiple SPF records cause a permerror).',
+          'Prefer ip4: entries for providers that publish stable ranges.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'dkim-record-not-matching',
+    categorySlug: 'email-authentication',
+    title: 'DKIM: key not matching the DNS record after setup',
+    description:
+      'How to check a DKIM selector in DNS, why it looks like a mismatch, and the exact places providers diverge.',
+    readingTimeMinutes: 6,
+    relatedTools: [{ label: 'DKIM Check', href: '/dns/dkim' }],
+    relatedArticles: ['spf-dkim-dmarc-basics'],
+    sections: [
+      {
+        kind: 'text',
+        heading: 'Problem',
+        paragraphs: [
+          'A mail provider says DKIM is enabled, but signed mail is not passing, and the DKIM check shows a record problem or an unavailable key.',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Symptoms',
+        items: [
+          'Verification reports "key not found", "pub key mismatch", or "no signature".',
+          'Your provider says the selector is correct and already published.',
+          'DMARC reports start showing dkim=fail alongside spf=pass.',
+        ],
+      },
+      {
+        kind: 'steps',
+        heading: 'Diagnose',
+        steps: [
+          {
+            title: 'Check the exact selector DNS',
+            detail:
+              'DKIM keys live under <selector>._domainkey.yourdomain.com as a TXT record. Confirm the selector your provider uses matches the DNS record name.',
+          },
+          {
+            title: 'Match the public key text',
+            detail:
+              'The p= value in DNS must equal the public key the signing provider advertises. Compare byte-for-byte; a line break or a missing k= tag is enough to break matching.',
+          },
+          {
+            title: 'Watch for record-size splits',
+            detail:
+              'TXT records longer than 255 characters are split into quoted strings. Receiver concatenation rules vary; many providers now accept "p=" split strings, but keep them joined where possible.',
+          },
+          {
+            title: 'Wait out the cache',
+            detail:
+              'After publishing, allow the record to propagate (TTL) and re-test. DKIM failures caused by caching clear within minutes.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Common causes',
+        items: [
+          'Selector mismatch between the sender configuration and the DNS record name.',
+          'Copy-paste errors in the p= value (spaces, truncation, or a line wrap).',
+          'EDNS/truncation: the TXT answer was cut because of packet size; receivers then see a partial key.',
+          'The record is published at the wrong domain (e.g. the registrar zone instead of the mail domain).',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Prevention',
+        items: [
+          'Use the DKIM check immediately after publishing and again after an hour.',
+          'Keep the exact key text the provider displays, including the k= and p= tags.',
+          'After any change, send a single test mail and inspect the Authentication-Results header.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'emails-going-to-spam-folder',
+    categorySlug: 'email-delivery',
+    title: 'Emails are landing in the spam folder',
+    description:
+      'The deliverability checklist: SPF, DKIM and DMARC alignment, sending reputation, content signals and what to change first.',
+    readingTimeMinutes: 7,
+    relatedTools: [
+      { label: 'Email Analyzer', href: '/email/analyze' },
+      { label: 'SPF Check', href: '/dns/spf' },
+    ],
+    relatedArticles: ['spf-dkim-dmarc-basics', 'smtp-bounce-codes-primer'],
+    sections: [
+      {
+        kind: 'text',
+        heading: 'Problem',
+        paragraphs: [
+          'Mail that you know was sent is not in the inbox. Spam-foldering is a judgement from receivers based on authentication, sending history and content, and it is diagnosed piece by piece.',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'The authentication baseline',
+        items: [
+          'SPF passes for your sending domain.',
+          'DKIM signature verifies against the published selector.',
+          'DMARC passes at least one of the two (with alignment where required).',
+          'The From: header address domain aligns with SPF/DKIM where the receiver enforces it.',
+        ],
+      },
+      {
+        kind: 'steps',
+        heading: 'Diagnose',
+        steps: [
+          {
+            title: 'Read the headers',
+            detail:
+              'Open the raw message and find the Authentication-Results block. Look for spf=, dkim=, dmarc= results and any alignment tags.',
+          },
+          {
+            title: 'Fix authentication first',
+            detail:
+              'No content fix overrides a failed SPF/DKIM/DMARC baseline. Correct the records, then re-test delivery.',
+          },
+          {
+            title: 'Check reputation and volume',
+            detail:
+              'If authentication is healthy, the next suspects are a new/young domain, inconsistent volume, or a shared sending IP with a bad reputation.',
+          },
+          {
+            title: 'Review content signals',
+            detail:
+              'Avoid all-caps subjects, excessive links, attachments from fresh domains, and mismatches between the display name and the actual From address.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Warm-up reality',
+        items: [
+          'Real inbox placement takes consistent sending over time. There is no "instant warm-up" switch; claims otherwise are marketing.',
+          'Test with a small, engaged list before scaling volume.',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Verification',
+        items: [
+          'Send a test message and run it through the Email Analyzer.',
+          'Confirm the Authentication-Results shows passes shortly after sending.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'smtp-bounce-codes-primer',
+    categorySlug: 'email-delivery',
+    title: 'SMTP bounce and rejection codes, explained',
+    description:
+      'What common SMTP codes (421, 450, 451, 550, 552) mean and which ones your hosting can fix versus which come from the target side.',
+    readingTimeMinutes: 5,
+    relatedTools: [{ label: 'Email Analyzer', href: '/email/analyze' }],
+    relatedArticles: ['email-delivery-issues', 'emails-going-to-spam-folder'],
+    sections: [
+      {
+        kind: 'steps',
+        heading: 'Reading a code',
+        steps: [
+          {
+            title: 'The first digit is the class',
+            detail: '2 = success, 4 = temporary failure, 5 = permanent failure.',
+          },
+          {
+            title: 'The last two digits are the detail',
+            detail:
+              'Detail codes are advisory; the exact wording after them is what you should quote to a support team.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'The codes that matter',
+        items: [
+          '421 — service temporarily unavailable (often a greylisting or a busy server). Temporary; retry later.',
+          '450 — mailbox busy / transient lookup failure. Temporary; retry later.',
+          '451 — local error in processing or DNS temporary failure. Temporary; often an MX resolution problem.',
+          '550 — you do not have permission / mailbox unavailable / recipient rejected. Permanent; the receiver refused the message.',
+          '551 — user not local. Permanent; wrong recipient domain for that server.',
+          '552 — mailbox exceeded storage limit. Permanent until the mailbox is cleared.',
+          '553 — mailbox name not allowed / invalid recipient. Permanent; address syntax or routing problem.',
+        ],
+      },
+      {
+        kind: 'steps',
+        heading: 'Who can fix what',
+        steps: [
+          {
+            title: 'Class 4 (temporary)',
+            detail:
+              'Often self-resolving; if persistent, check DNS (MX pointing somewhere unreachable) and your sending limits.',
+          },
+          {
+            title: 'Class 5 from the receiving side',
+            detail:
+              'Decisions belong to the recipient: mailbox full, mailbox removed, or explicit policy refusal. Quote the full diagnostic code line to their support.',
+          },
+          {
+            title: 'Class 5 that mentions DNS',
+            detail:
+              'If the code is accompanied by "could not resolve host" or similar, your MX record is the likely fault and is fixable on your side.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Prevention',
+        items: [
+          'Always import rejections into the sending system: retrying permanent failures is a spam signal.',
+          'Monitor bounce rates; a rising bounce rate is the earliest deliverability warning.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'wordpress-slow-or-timeout-pages',
+    categorySlug: 'wordpress-websites',
+    title: 'WordPress pages are slow or timing out',
+    description:
+      'A methodical check path for slow WordPress sites: plugins, themes, PHP limits, caching, database and the web server layer.',
+    readingTimeMinutes: 6,
+    relatedTools: [{ label: 'DNS Health', href: '/dns/analyze' }],
+    relatedArticles: ['wordpress-500-502-503-errors', 'vps-disk-space-full'],
+    sections: [
+      {
+        kind: 'text',
+        heading: 'Problem',
+        paragraphs: [
+          'The site loads, but slowly, or hangs until the browser gives up. Slow WordPress almost always has several small causes that add up, so the fix is a checklist, not one switch.',
+        ],
+      },
+      {
+        kind: 'steps',
+        heading: 'Check in this order',
+        steps: [
+          {
+            title: 'Is it the network or the site?',
+            detail:
+              'Confirm DNS answers quickly and the server responds on the expected port before blaming WordPress itself.',
+          },
+          {
+            title: 'One-by-one plugin and theme test',
+            detail:
+              'Temporarily disable non-essential plugins and switch to a stock theme. Note load time per change. Plugins that do heavy work on every request are the usual cause.',
+          },
+          {
+            title: 'Check PHP limits and slow queries',
+            detail:
+              'Look at PHP memory limits and any database slow-query log. Long queries on tight markup can add seconds even with modest traffic.',
+          },
+          {
+            title: 'Inspect the caching layer',
+            detail:
+              'Confirm a real page cache exists and is honoured for anonymous visitors. Without it every request re-renders the page.',
+          },
+          {
+            title: 'Watch the server resources',
+            detail:
+              'Swap usage, I/O wait and exhausted workers are server-level causes. The VPS housekeeping guide covers the checks.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Common causes',
+        items: [
+          'A plugin doing external HTTP calls synchronously on every page load.',
+          'A very large theme doing expensive queries in widgets/sidebars.',
+          'Missing opcode/object cache for modest shared or VPS plans.',
+          'No page cache at all, or a cache plugin conflicting with the server cache.',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Prevention',
+        items: [
+          'Measure before and after every change with the same test (same device, same network, repeated runs).',
+          'Keep plugins minimal and update one at a time.',
+          'Set sensible PHP memory limits instead of raising them blindly.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'ssl-certificate-expired-vs-mismatch',
+    categorySlug: 'servers-and-ssl',
+    title: 'Expired SSL vs hostname mismatch vs incomplete chain',
+    description:
+      'The three ways HTTPS can look broken that are not the same problem, and how to tell which one a visitor is hitting.',
+    readingTimeMinutes: 6,
+    relatedTools: [{ label: 'DNS Lookup', href: '/dns/lookup' }],
+    relatedArticles: ['ssl-certificate-problems'],
+    sections: [
+      {
+        kind: 'text',
+        heading: 'Problem',
+        paragraphs: [
+          'Visitors see a certificate warning, or a browser refuses to connect, and the message varies by device. The three common failures are different problems with different fixes.',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'The three failure modes',
+        items: [
+          'Expired — the certificate date range has passed. Fixed by reissuing/renewing; affects every visitor equally.',
+          'Hostname mismatch — the certificate does not cover the exact hostname visited (e.g. www vs apex). Fixed by issuing for the right names or visiting the right host.',
+          'Incomplete chain — the server did not send the full trust chain (missing intermediate). Fixed by installing the intermediate bundle on the server.',
+        ],
+      },
+      {
+        kind: 'steps',
+        heading: 'Diagnose',
+        steps: [
+          {
+            title: 'Match the wording',
+            detail:
+              '"expired", "not yet valid", "out of date" point to expiry. "does not match", "wrong host", "security certificate name" point to mismatch. "not trusted", "unable to build chain" point to chain issues.',
+          },
+          {
+            title: 'Check the exact hostname',
+            detail:
+              'Test apex (example.com) and www separately; a mismatch can be present on one and fine on the other.',
+          },
+          {
+            title: 'Look at the dates and subject',
+            detail:
+              'Inspect the certificate dates and the SAN (subject alternative names) list to confirm coverage.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Prevention',
+        items: [
+          'Renew well before the expiry date and confirm the renewal deployed (test the live server, not the dashboard).',
+          'Include both www and apex in every issuance.',
+          'Test HTTPS from an external network after any certificate change.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'vps-service-down-checklist',
+    categorySlug: 'servers-and-ssl',
+    title: 'A service on the VPS stopped — the 20-minute checklist',
+    description:
+      'Ordered checks to find out whether a service is down on the server itself versus blocked further out: status, port, logs, resources.',
+    readingTimeMinutes: 6,
+    relatedTools: [{ label: 'DNS Health', href: '/dns/analyze' }],
+    relatedArticles: ['vps-disk-space-full', 'vps-basic-hardening'],
+    sections: [
+      {
+        kind: 'steps',
+        heading: 'The checklist',
+        steps: [
+          {
+            title: 'Confirm the service status',
+            detail:
+              'Check whether the process is running and what the supervisor reports. Note the exit reason if it crashed.',
+          },
+          {
+            title: 'Confirm the port is listening',
+            detail:
+              'Test locally whether the service is bound, then from outside. A service that listens locally but is unreachable externally points to the firewall, not the service.',
+          },
+          {
+            title: 'Read the service logs',
+            detail:
+              'The last lines before the stop tell you the cause far more reliably than guessing.',
+          },
+          {
+            title: 'Check the resource envelope',
+            detail:
+              'Disk full, exhausted memory/swap and runaway processes are the most common silent killers. See the disk-space guide for the disk checks.',
+          },
+          {
+            title: 'Restart cleanly and watch',
+            detail:
+              'Start the service, wait, and re-check status and ports. If it exits again immediately, the problem is configuration, not a one-off crash.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'When the server itself is fine',
+        items: [
+          'If local checks pass but remote checks fail: firewall rules, the provider firewall, or a downed upstream link.',
+          'If the domain fails but the IP works: DNS. Check the records before touching the server.',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Prevention',
+        items: [
+          'Set a monitoring alert that records the exact time it stopped.',
+          'Keep boot-safe recovery notes for services you manage.',
+          'Check disk and memory at the same time each week.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'dns-lookup-reader-guide',
+    categorySlug: 'using-ravelyth',
+    title: 'How to read a DNS Lookup result',
+    description:
+      'Every field in the DNS Lookup answer explained: query, record details, response time and when an answer means something is wrong.',
+    readingTimeMinutes: 5,
+    relatedTools: [{ label: 'DNS Lookup', href: '/dns/lookup' }],
+    relatedArticles: ['running-diagnostics-before-support'],
+    sections: [
+      {
+        kind: 'text',
+        heading: 'What a lookup shows',
+        paragraphs: [
+          'A DNS lookup sends the query you asked for, shows the answers returned by the resolver you selected, and reports the response time. It answers "what is published right now" — not "why something is broken", which is what DNS Health is for.',
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Reading the answer fields',
+        items: [
+          'Query — the exact name and type you asked about. Check that the tool queried what you intended (www vs apex, singular vs plural).',
+          'TTL — seconds until a resolver may reuse the answer. Short TTLs are normal right after changes.',
+          'Class — normally IN; anything else is unusual.',
+          'Answer/RDATA — the actual values. For A/AAAA: comparing these to the intended IP decides whether the change is live.',
+          'Response time — the round trip to the resolver. A slow answer hints at resolver/network health, not usually your records.',
+        ],
+      },
+      {
+        kind: 'steps',
+        heading: 'When an answer means trouble',
+        steps: [
+          {
+            title: 'No records returned',
+            detail: 'Either the type is not published for that name or the resolver has nothing cached yet.',
+          },
+          {
+            title: 'An NXDOMAIN answer',
+            detail:
+              'The name does not exist at all — a spelling issue or a missing record, not just a slow propagation.',
+          },
+          {
+            title: 'Conflicting answers between resolvers',
+            detail:
+              'Two resolvers returning different values means propagation is incomplete or multiple DNS providers are configured.',
+          },
+        ],
+      },
+      {
+        kind: 'list',
+        heading: 'Prevention',
+        items: [
+          'Always run the lookup on the exact hostname spelled in your records.',
+          'Compare the tool output with what the DNS panel shows, and with the answer from a second resolver.',
+        ],
+      },
+    ],
+  },
 ];

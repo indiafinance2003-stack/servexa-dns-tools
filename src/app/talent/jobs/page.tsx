@@ -41,10 +41,10 @@ export default async function TalentJobsPage({ searchParams }: PageProps): Promi
           Roles we are actively hiring for. Apply directly — no account needed.
         </p>
       </header>
-      <form method="get" action="/talent/jobs" className="mt-6 rounded-xl border border-line bg-white p-4">
+      <form method="get" action="/talent/jobs" className="mt-6 rounded-xl border border-line bg-navy-surface p-4">
         <div className="grid gap-3 sm:grid-cols-4">
           <div>
-            <label htmlFor="q" className="block text-sm font-medium text-slate-700">Keyword</label>
+            <label htmlFor="q" className="block text-sm font-medium text-slate-300">Keyword</label>
             <input
               id="q"
               name="q"
@@ -54,7 +54,7 @@ export default async function TalentJobsPage({ searchParams }: PageProps): Promi
             />
           </div>
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-slate-700">Location</label>
+            <label htmlFor="location" className="block text-sm font-medium text-slate-300">Location</label>
             <input
               id="location"
               name="location"
@@ -64,7 +64,7 @@ export default async function TalentJobsPage({ searchParams }: PageProps): Promi
             />
           </div>
           <div>
-            <label htmlFor="workMode" className="block text-sm font-medium text-slate-700">Work mode</label>
+            <label htmlFor="workMode" className="block text-sm font-medium text-slate-300">Work mode</label>
             <select
               id="workMode"
               name="workMode"
@@ -89,7 +89,7 @@ export default async function TalentJobsPage({ searchParams }: PageProps): Promi
       </form>
 
       {jobs.length === 0 ? (
-        <p className="mt-10 rounded-xl border border-line bg-white p-6 text-slate-600">
+        <p className="mt-10 rounded-xl border border-line bg-navy-surface p-6 text-slate-400">
           No open positions match right now. Check back soon, or share your profile with us and we
           will keep you in mind for upcoming roles.
         </p>
@@ -101,14 +101,14 @@ export default async function TalentJobsPage({ searchParams }: PageProps): Promi
             return (
               <li
                 key={job.jobCode}
-                className="rounded-xl border border-line bg-white p-5 transition-shadow hover:shadow-sm"
+                className="rounded-xl border border-line bg-navy-surface p-5 transition-shadow hover:shadow-sm"
               >
                 <Link href={`/talent/jobs/${encodeURIComponent(job.jobCode)}`} className="block">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h2 className="text-xl font-semibold text-ink hover:text-accent">{job.title}</h2>
                     <span className="text-sm text-muted">{job.jobCode}</span>
                   </div>
-                  <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
+                  <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-400">
                     <span>{job.location ?? 'Location discussed during screening'}</span>
                     <span>{workModeLabel(job.workMode)}</span>
                     <span>{employmentTypeLabel(job.employmentType)}</span>
@@ -120,7 +120,7 @@ export default async function TalentJobsPage({ searchParams }: PageProps): Promi
                       {job.requiredSkills.slice(0, 8).map((skill) => (
                         <span
                           key={skill}
-                          className="rounded-full bg-paper px-2.5 py-0.5 text-xs text-slate-600"
+                          className="rounded-full bg-paper px-2.5 py-0.5 text-xs text-slate-400"
                         >
                           {skill}
                         </span>

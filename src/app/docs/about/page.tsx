@@ -56,7 +56,7 @@ export default function Page(): React.ReactElement {
           analysis is POST-only. Responses use <code>{'{ success, data }'}</code> or{' '}
           <code>{'{ success, error }'}</code>.
         </p>
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-700">
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-300">
           <li><code>/api/dns/lookup</code>, <code>/api/dns/analyze</code>, <code>/api/dns/spf</code>, <code>/api/dns/dmarc</code>, <code>/api/dns/dkim</code>, <code>/api/dns/ptr</code>, <code>/api/dns/resolvers</code> — GET and POST.</li>
           <li><code>/api/email/analyze</code> — POST only.</li>
           <li><code>/api/auth/register</code>, <code>/api/auth/login</code>, <code>/api/auth/logout</code> — POST only; <code>/api/auth/me</code> — GET.</li>

@@ -47,16 +47,20 @@ export default async function Page(): Promise<React.ReactElement> {
         <InfoSection title="Browse by topic" id="categories">
           <div className="grid gap-4 sm:grid-cols-2">
             {categories.data.map((category) => (
-              <div key={category.slug} className="rounded-lg border border-line p-4">
+              <Link
+                key={category.slug}
+                href={`/docs/category/${category.slug}`}
+                className="block rounded-lg border border-line p-4 transition hover:border-accent"
+              >
                 <h3 className="font-semibold text-ink">{category.title}</h3>
                 {category.description ? (
-                  <p className="mt-1 text-sm text-slate-600">{category.description}</p>
+                  <p className="mt-1 text-sm text-slate-400">{category.description}</p>
                 ) : null}
-                <p className="mt-2 text-xs uppercase tracking-wide text-slate-500">
+                <p className="mt-2 text-xs uppercase tracking-wide text-accent">
                   {articleCountByCategory.get(category.slug) ?? 0} article
-                  {(articleCountByCategory.get(category.slug) ?? 0) === 1 ? '' : 's'}
+                  {(articleCountByCategory.get(category.slug) ?? 0) === 1 ? '' : 's'} →
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </InfoSection>

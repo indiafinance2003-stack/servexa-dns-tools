@@ -47,7 +47,7 @@ export default async function OwnerApplicationDetailPage({ params }: Props) {
         </div>
         <Link
           href="/owner/talent/applications"
-          className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-medium text-ink transition hover:border-accent hover:shadow-sm"
+          className="inline-flex items-center gap-2 rounded-lg border border-line bg-navy-surface px-4 py-2 text-sm font-medium text-ink transition hover:border-accent hover:shadow-sm"
         >
           <span className="text-lg" aria-hidden="true">&larr;</span> Back to Applications
         </Link>

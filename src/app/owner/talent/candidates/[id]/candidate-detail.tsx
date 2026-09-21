@@ -60,13 +60,13 @@ interface CandidateResponse {
 }
 
 const statusClasses: Record<string, string> = {
-  granted: 'bg-emerald-100 text-emerald-700',
-  pending: 'bg-amber-100 text-amber-700',
-  declined: 'bg-red-100 text-red-700',
+  granted: 'bg-emerald-500/100/15 text-emerald-300',
+  pending: 'bg-amber-500/100/15 text-amber-300',
+  declined: 'bg-red-500/100/15 text-red-300',
 };
 
-const chip = 'rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700';
-const dt = 'text-xs font-medium uppercase tracking-wide text-slate-500';
+const chip = 'rounded-full bg-slate-800 px-2.5 py-0.5 text-xs text-slate-300';
+const dt = 'text-xs font-medium uppercase tracking-wide text-slate-400';
 const dd = 'mt-1 text-sm text-ink';
 
 function rupees(value: number | null): string {
@@ -138,8 +138,8 @@ export function OwnerCandidateDetailClient({ candidateId }: { candidateId: strin
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-line bg-white p-6">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
+        <div className="flex items-center gap-2 text-sm text-slate-400">
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
           Loading candidate...
         </div>
@@ -149,7 +149,7 @@ export function OwnerCandidateDetailClient({ candidateId }: { candidateId: strin
 
   if (!candidate) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+      <div className="rounded-xl border border-red-200 bg-red-500/10 p-4 text-sm text-red-300">
         {error ?? 'Candidate not found.'}
       </div>
     );
@@ -157,19 +157,19 @@ export function OwnerCandidateDetailClient({ candidateId }: { candidateId: strin
 
   return (
     <div className="space-y-6">
-      {error ? <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</div> : null}
+      {error ? <div className="rounded-md border border-red-200 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
+      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-500/10 p-3 text-sm text-emerald-300">{notice}</div> : null}
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-xl font-semibold text-ink">{candidate.fullName}</h2>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-slate-400">
               {candidate.candidateId} - added {formatDate(candidate.createdAt)}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[candidate.consentStatus] ?? 'bg-slate-100 text-slate-700')}>
+            <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[candidate.consentStatus] ?? 'bg-slate-800 text-slate-300')}>
               Consent: {candidate.consentStatus}
             </span>
             <span className={chip}>Source: {candidate.source}</span>
@@ -212,16 +212,16 @@ export function OwnerCandidateDetailClient({ candidateId }: { candidateId: strin
         ) : null}
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Internal recruiter notes</h2>
-        <p className="mt-1 text-xs text-slate-500">Owner-only. Never exposed on public routes or to clients.</p>
+        <p className="mt-1 text-xs text-slate-400">Owner-only. Never exposed on public routes or to clients.</p>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={5}
           maxLength={4000}
           aria-label="Internal recruiter notes"
-          className="mt-3 w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
+          className="mt-3 w-full rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
         />
         <div className="mt-3">
           <button
@@ -235,20 +235,20 @@ export function OwnerCandidateDetailClient({ candidateId }: { candidateId: strin
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Documents ({documents.length})</h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-slate-400">
           Downloads are served through the authenticated Owner endpoint and every access is written to the talent activity log.
         </p>
         {documents.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No documents uploaded for this candidate.</p>
+          <p className="mt-4 text-sm text-slate-400">No documents uploaded for this candidate.</p>
         ) : (
           <ul className="mt-4 divide-y divide-line">
             {documents.map((doc) => (
               <li key={doc.id} className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
                 <span className="text-sm text-ink">{doc.filename}</span>
                 <span className={chip}>{doc.kind}</span>
-                <span className="text-xs text-slate-500">{Math.max(1, Math.round(doc.byteSize / 1024))} KB</span>
+                <span className="text-xs text-slate-400">{Math.max(1, Math.round(doc.byteSize / 1024))} KB</span>
                 <span className="text-xs text-slate-400">{formatDate(doc.uploadedAt)}</span>
                 <a
                   href={'/api/owner/talent/documents/' + doc.id}
@@ -264,10 +264,10 @@ export function OwnerCandidateDetailClient({ candidateId }: { candidateId: strin
         )}
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Applications ({applications.length})</h2>
         {applications.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">This candidate has no applications yet.</p>
+          <p className="mt-4 text-sm text-slate-400">This candidate has no applications yet.</p>
         ) : (
           <ul className="mt-4 divide-y divide-line">
             {applications.map((app) => (
@@ -276,10 +276,10 @@ export function OwnerCandidateDetailClient({ candidateId }: { candidateId: strin
                   {app.applicationId}
                 </Link>
                 <span className="text-sm text-ink">{app.jobTitle}</span>
-                <span className="text-xs text-slate-500">{app.jobCode}</span>
+                <span className="text-xs text-slate-400">{app.jobCode}</span>
                 <span className={chip}>{app.status}</span>
                 {app.clientSubmissionDate ? (
-                  <span className="text-xs text-slate-500">Client submission: {formatDate(app.clientSubmissionDate)}</span>
+                  <span className="text-xs text-slate-400">Client submission: {formatDate(app.clientSubmissionDate)}</span>
                 ) : null}
                 <span className="ml-auto text-xs text-slate-400">{formatDate(app.createdAt)}</span>
               </li>

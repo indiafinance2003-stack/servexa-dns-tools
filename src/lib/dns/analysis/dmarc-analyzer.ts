@@ -12,11 +12,12 @@ export async function analyzeDMARC(domain: string, budget?: QueryBudget): Promis
   const result = await resolveDNS(lookupName, DNSRecordType.TXT, { budget });
   const findings: DMARCAnalysis['findings'] = [];
 
-  if (result.status !== 'success' && result.status !== 'empty') {
+  const failedStatuses: ReadonlySet<string> = new Set(['servfail', 'refused', 'timeout', 'error']);
+  if (failedStatuses.has(result.status)) {
     findings.push(
       finding(
         'DMARC_LOOKUP_FAILED',
-        result.status === 'nxdomain' ? 'error' : 'warning',
+        'error',
         'dmarc',
         'DMARC lookup failed',
         `TXT lookup for ${lookupName} returned ${result.status}.`,
@@ -38,7 +39,7 @@ export async function analyzeDMARC(domain: string, budget?: QueryBudget): Promis
         'No DMARC record',
         `No v=DMARC1 TXT record was found at ${lookupName}.`,
         'Without DMARC, receivers have no published policy for handling failed authentication.',
-        { recommendation: 'Publish a DMARC record at _dmarc.example.com starting with v=DMARC1; p=none or stricter.' }
+        { recommendation: 'Publish a DMARC record at _dmarc.example.com starting with v=DMARC1; p=none or stricter.', evidence: { lookupStatus: result.status } }
       )
     );
     return { domain, lookupName, records, findings };

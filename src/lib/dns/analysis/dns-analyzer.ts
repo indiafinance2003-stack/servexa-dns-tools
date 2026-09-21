@@ -23,6 +23,8 @@ import { analyzeNameservers } from '@/lib/dns/analysis/nameserver-analyzer';
 import { inspectDnssec } from '@/lib/dns/analysis/dnssec-inspector';
 import { finding } from '@/lib/dns/analysis/findings';
 
+const FAILURE_STATUSES: ReadonlySet<string> = new Set(['servfail', 'refused', 'timeout', 'error']);
+
 export interface DNSAnalysisResult {
   domain: string;
   records: {
@@ -73,11 +75,23 @@ export async function analyzeDNS(domain: string): Promise<DNSAnalysisResult> {
     types.map((type) => [type, byType[type].status])
   );
 
-  if (byType.A.status === 'success' && a.length > 0) {
+  if (byType.A.status === 'nxdomain') {
+    findings.push(
+      finding(
+        'DOMAIN_NXDOMAIN',
+        'error',
+        'dns',
+        'Domain does not exist',
+        'The resolver reported NXDOMAIN for this name.',
+        'NXDOMAIN means the name does not exist, so other record types cannot be evaluated. Absence findings are suppressed to avoid implying that records are merely missing.',
+        { evidence: { status: byType.A.status } }
+      )
+    );
+  } else if (byType.A.status === 'success' && a.length > 0) {
     findings.push(
       finding('A_PRESENT', 'pass', 'dns', 'A records present', `${a.length} IPv4 address(es) observed.`, 'Address records were returned by this resolver.')
     );
-  } else if (byType.A.status === 'empty' || (byType.A.status === 'success' && a.length === 0)) {
+  } else if (byType.A.status === 'empty' || byType.A.status === 'success') {
     findings.push(
       finding(
         'A_MISSING',
@@ -178,6 +192,23 @@ export async function analyzeDNS(domain: string): Promise<DNSAnalysisResult> {
     findings.push(
       finding('SOA_MISSING', 'warning', 'dns', 'No SOA record', 'SOA was not returned.', 'Apex names normally have an SOA. This may be a non-apex name or a resolver limitation.')
     );
+  }
+
+  for (const type of types) {
+    const lookup = byType[type];
+    if (FAILURE_STATUSES.has(lookup.status)) {
+      findings.push(
+        finding(
+          `${type}_LOOKUP_FAILED`,
+          'warning',
+          'dns',
+          `${type} lookup failed`,
+          `The resolver returned ${lookup.status} while querying ${type} records.`,
+          'This record type is not reported as absent because the lookup itself failed. The result reflects one resolver\u2019s response.',
+          { evidence: { status: lookup.status, error: lookup.error } }
+        )
+      );
+    }
   }
 
   const nameservers = await analyzeNameservers(domain, budget);

@@ -28,16 +28,16 @@ const TYPES = ['video', 'phone', 'in_person', 'technical', 'hr'] as const;
 
 const statusClasses: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 text-blue-700',
-  COMPLETED: 'bg-emerald-100 text-emerald-700',
-  RESCHEDULED: 'bg-amber-100 text-amber-700',
-  NO_SHOW: 'bg-red-100 text-red-700',
-  CANCELLED: 'bg-slate-100 text-slate-700',
+  COMPLETED: 'bg-emerald-500/100/15 text-emerald-300',
+  RESCHEDULED: 'bg-amber-500/100/15 text-amber-300',
+  NO_SHOW: 'bg-red-500/100/15 text-red-300',
+  CANCELLED: 'bg-slate-800 text-slate-300',
   PASSED: 'bg-green-100 text-green-700',
-  FAILED: 'bg-red-100 text-red-700',
+  FAILED: 'bg-red-500/100/15 text-red-300',
 };
 
-const input = 'w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none';
-const label = 'block text-sm font-medium text-slate-700';
+const input = 'w-full rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none';
+const label = 'block text-sm font-medium text-slate-300';
 
 function formatWhen(value: string | null): string {
   if (!value) return 'Not scheduled';
@@ -149,10 +149,10 @@ export function OwnerInterviewsList() {
 
   return (
     <div className="space-y-6">
-      {error ? <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</div> : null}
+      {error ? <div className="rounded-md border border-red-200 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
+      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-500/10 p-3 text-sm text-emerald-300">{notice}</div> : null}
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Schedule an interview</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="sm:col-span-2 lg:col-span-3">
@@ -194,15 +194,15 @@ export function OwnerInterviewsList() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-base font-semibold text-ink">Interview rounds ({interviews.length})</h2>
-          <label className="ml-auto flex items-center gap-2 text-sm text-slate-600">
+          <label className="ml-auto flex items-center gap-2 text-sm text-slate-400">
             <input type="checkbox" checked={upcomingOnly} onChange={(e) => setUpcomingOnly(e.target.checked)} className="h-4 w-4 rounded border-line text-accent" />
             Upcoming only
           </label>
           {loading ? (
-            <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="flex items-center gap-2 text-sm text-slate-400">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
               Loading...
             </div>
@@ -211,7 +211,7 @@ export function OwnerInterviewsList() {
 
         {!loading && interviews.length === 0 ? (
           <div className="mt-6 border border-dashed border-line py-12 text-center">
-            <p className="text-sm text-slate-500">{upcomingOnly ? 'No upcoming interviews.' : 'No interviews have been scheduled yet.'}</p>
+            <p className="text-sm text-slate-400">{upcomingOnly ? 'No upcoming interviews.' : 'No interviews have been scheduled yet.'}</p>
           </div>
         ) : null}
 
@@ -222,11 +222,11 @@ export function OwnerInterviewsList() {
               <div key={row.id} className="rounded-lg border border-line p-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-sm font-semibold text-ink">{row.round}</span>
-                  <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[row.status] ?? 'bg-slate-100 text-slate-700')}>
+                  <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[row.status] ?? 'bg-slate-800 text-slate-300')}>
                     {row.status.replace(/_/g, ' ')}
                   </span>
-                  <span className="text-xs text-slate-500">{row.interviewType.replace(/_/g, ' ')}</span>
-                  <span className="text-xs text-slate-500">{formatWhen(row.scheduledAt)}</span>
+                  <span className="text-xs text-slate-400">{row.interviewType.replace(/_/g, ' ')}</span>
+                  <span className="text-xs text-slate-400">{formatWhen(row.scheduledAt)}</span>
                   {app ? (
                     <Link href={'/owner/talent/applications/' + app.id} className="text-xs font-medium text-accent hover:underline">
                       {app.applicationId + ' - ' + app.candidateCode + ' - ' + app.jobTitle}
@@ -235,7 +235,7 @@ export function OwnerInterviewsList() {
                     <span className="text-xs text-slate-400">Application {row.applicationId}</span>
                   )}
                 </div>
-                <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-500">
+                <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-400">
                   {row.interviewer ? <span>Interviewer: {row.interviewer}</span> : null}
                   {row.meetingLink ? (
                     <a href={row.meetingLink} target="_blank" rel="noreferrer" className="text-accent hover:underline">
@@ -267,17 +267,17 @@ function InterviewControls({
   return (
     <div className="mt-4 grid gap-3 sm:grid-cols-3">
       <div>
-        <label className="block text-xs font-medium text-slate-500" htmlFor={'interview-status-' + row.id}>Status</label>
-        <select id={'interview-status-' + row.id} className="mt-1 w-full rounded-md border border-line bg-white px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none" value={status} onChange={(e) => setStatus(e.target.value)}>
+        <label className="block text-xs font-medium text-slate-400" htmlFor={'interview-status-' + row.id}>Status</label>
+        <select id={'interview-status-' + row.id} className="mt-1 w-full rounded-md border border-line bg-navy-surface px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none" value={status} onChange={(e) => setStatus(e.target.value)}>
           {STATUSES.map((value) => (<option key={value} value={value}>{value.replace(/_/g, ' ')}</option>))}
         </select>
       </div>
       <div className="sm:col-span-2">
-        <label className="block text-xs font-medium text-slate-500" htmlFor={'interview-feedback-' + row.id}>Feedback</label>
-        <textarea id={'interview-feedback-' + row.id} rows={2} maxLength={4000} className="mt-1 w-full rounded-md border border-line bg-white px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none" value={feedback} onChange={(e) => setFeedback(e.target.value)} />
+        <label className="block text-xs font-medium text-slate-400" htmlFor={'interview-feedback-' + row.id}>Feedback</label>
+        <textarea id={'interview-feedback-' + row.id} rows={2} maxLength={4000} className="mt-1 w-full rounded-md border border-line bg-navy-surface px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none" value={feedback} onChange={(e) => setFeedback(e.target.value)} />
       </div>
       <div className="sm:col-span-3">
-        <button type="button" onClick={() => void onSave(row.id, status, feedback)} disabled={busy} className="inline-flex items-center rounded-md border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-slate-50 disabled:opacity-50">
+        <button type="button" onClick={() => void onSave(row.id, status, feedback)} disabled={busy} className="inline-flex items-center rounded-md border border-line bg-navy-surface px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-slate-800 disabled:opacity-50">
           {busy ? 'Saving...' : 'Save interview'}
         </button>
       </div>

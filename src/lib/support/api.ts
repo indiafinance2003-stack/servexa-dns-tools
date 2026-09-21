@@ -2,6 +2,7 @@ import { AppError, AppErrorCode, RateLimitError } from '@/lib/errors/app-error';
 import { requireApiUser } from '@/lib/auth/require-user';
 import { createRateLimiter, type RateLimiter } from '@/lib/security/rate-limit/rate-limiter';
 import { config } from '@/lib/config';
+import { requireManagedSupportEntitlement } from './entitlement';
 import { SupportError } from './errors';
 import { NotificationError } from '@/lib/notifications/notifications';
 
@@ -77,6 +78,23 @@ export async function requireSupportUser() {
     throw new AppError(AppErrorCode.UNAUTHORIZED, 'Sign in to use the support portal.', 401);
   }
   return user;
+}
+
+/**
+ * Managed Support is the only way to open or read support tickets. Every
+ * customer-facing support endpoint enforces the entitlement here so a normal
+ * account can never query or write ticket data through the API.
+ */
+export async function requireSupportEntitlement(userId: string) {
+  const entitlement = await requireManagedSupportEntitlement(userId);
+  if (!entitlement.entitled) {
+    throw new AppError(
+      AppErrorCode.UNAUTHORIZED,
+      'Support tickets require an active Managed Support plan. See /services for the scope.',
+      401
+    );
+  }
+  return entitlement;
 }
 
 let ticketCreateLimiter: RateLimiter | undefined;

@@ -50,13 +50,13 @@ export function SavedAnalysesList({ items }: { items: SavedAnalysisItem[] }): Re
 
   return (
     <div className="space-y-3">
-      {error ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
+      {error ? <p className="rounded-md bg-red-500/10 p-3 text-sm text-red-300">{error}</p> : null}
       <ul className="divide-y divide-line rounded-lg border border-line">
         {items.map((item) => (
           <li key={item.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
             <div className="min-w-0 flex-1">
               <p className="truncate font-mono text-sm text-ink">{item.target}</p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-400">
                 {item.analysisType} · {summarizeResult(item.result)} ·{' '}
                 {new Date(item.createdAt).toLocaleString()}
               </p>
@@ -65,14 +65,14 @@ export function SavedAnalysesList({ items }: { items: SavedAnalysisItem[] }): Re
               type="button"
               onClick={() => onDelete(item.id)}
               disabled={deletingId === item.id}
-              className="rounded-md border border-line px-3 py-1.5 text-xs font-medium text-slate-700 hover:border-red-300 hover:text-red-700 disabled:opacity-60"
+              className="rounded-md border border-line px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-red-300 hover:text-red-300 disabled:opacity-60"
             >
               {deletingId === item.id ? 'Deleting…' : 'Delete'}
             </button>
           </li>
         ))}
       </ul>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-400">
         Saved analyses contain structured DNS results only. Raw email headers are never stored by Ravelyth.
       </p>
     </div>

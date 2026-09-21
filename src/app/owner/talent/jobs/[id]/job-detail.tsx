@@ -43,12 +43,12 @@ interface JobApplicationSummary {
 }
 
 const statusClasses: Record<string, string> = {
-  DRAFT: 'bg-slate-100 text-slate-700',
-  OPEN: 'bg-emerald-100 text-emerald-700',
-  PAUSED: 'bg-amber-100 text-amber-700',
-  CLOSED: 'bg-red-100 text-red-700',
+  DRAFT: 'bg-slate-800 text-slate-300',
+  OPEN: 'bg-emerald-500/100/15 text-emerald-300',
+  PAUSED: 'bg-amber-500/100/15 text-amber-300',
+  CLOSED: 'bg-red-500/100/15 text-red-300',
   FILLED: 'bg-blue-100 text-blue-700',
-  CANCELLED: 'bg-red-100 text-red-700',
+  CANCELLED: 'bg-red-500/100/15 text-red-300',
 };
 
 /** Only transitions the recruiting team realistically performs day to day. */
@@ -71,8 +71,8 @@ const TRANSITIONS: Record<string, Array<{ status: string; label: string; tone: s
   CANCELLED: [{ status: 'OPEN', label: 'Reopen', tone: 'bg-emerald-600 hover:bg-emerald-700' }],
 };
 
-const chip = 'rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700';
-const dt = 'text-xs font-medium uppercase tracking-wide text-slate-500';
+const chip = 'rounded-full bg-slate-800 px-2.5 py-0.5 text-xs text-slate-300';
+const dt = 'text-xs font-medium uppercase tracking-wide text-slate-400';
 const dd = 'mt-1 text-sm text-ink';
 
 function money(minor: number | null, currency: string): string {
@@ -144,8 +144,8 @@ export function TalentJobDetailClient({ jobId }: JobDetailProps) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-line bg-white p-6">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
+        <div className="flex items-center gap-2 text-sm text-slate-400">
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
           Loading job...
         </div>
@@ -155,7 +155,7 @@ export function TalentJobDetailClient({ jobId }: JobDetailProps) {
 
   if (!job) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+      <div className="rounded-xl border border-red-200 bg-red-500/10 p-4 text-sm text-red-300">
         {error ?? 'Job not found.'}
       </div>
     );
@@ -179,15 +179,15 @@ export function TalentJobDetailClient({ jobId }: JobDetailProps) {
 
   return (
     <div className="space-y-6">
-      {error ? <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
+      {error ? <div className="rounded-md border border-red-200 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-xl font-semibold text-ink">{job.title}</h2>
-            <p className="mt-1 text-xs text-slate-500">{job.jobId}</p>
+            <p className="mt-1 text-xs text-slate-400">{job.jobId}</p>
           </div>
-          <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[job.status] ?? 'bg-slate-100 text-slate-700')}>
+          <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[job.status] ?? 'bg-slate-800 text-slate-300')}>
             {job.statusLabel}
           </span>
         </div>
@@ -225,17 +225,17 @@ export function TalentJobDetailClient({ jobId }: JobDetailProps) {
 
         <div className="mt-6">
           <h3 className={dt}>Description</h3>
-          <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">{job.description}</p>
+          <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-400">{job.description}</p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Pipeline actions</h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-slate-400">
           Publishing makes the role visible on /talent/jobs. Every transition is re-validated on the server.
         </p>
         {transitions.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No transitions available for this status.</p>
+          <p className="mt-4 text-sm text-slate-400">No transitions available for this status.</p>
         ) : (
           <div className="mt-4 flex flex-wrap gap-2">
             {transitions.map((t) => (
@@ -253,10 +253,10 @@ export function TalentJobDetailClient({ jobId }: JobDetailProps) {
         )}
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Applications ({applications.length})</h2>
         {applications.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No applications have been received for this job yet.</p>
+          <p className="mt-4 text-sm text-slate-400">No applications have been received for this job yet.</p>
         ) : (
           <ul className="mt-4 divide-y divide-line">
             {applications.map((app) => (
@@ -264,7 +264,7 @@ export function TalentJobDetailClient({ jobId }: JobDetailProps) {
                 <Link href={'/owner/talent/applications/' + app.id} className="text-sm font-medium text-accent hover:underline">
                   {app.applicationId}
                 </Link>
-                <span className="text-xs text-slate-500">Candidate {app.candidateCode}</span>
+                <span className="text-xs text-slate-400">Candidate {app.candidateCode}</span>
                 <span className={chip}>{app.status}</span>
                 <span className="ml-auto text-xs text-slate-400">
                   {new Date(app.createdAt).toLocaleDateString('en-IN')}

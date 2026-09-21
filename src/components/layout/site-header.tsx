@@ -23,7 +23,7 @@ export function SiteHeader({
   const authenticated = Boolean(user);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-line bg-navy-surface/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
         <RavelythLogo />
         <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
@@ -31,7 +31,7 @@ export function SiteHeader({
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-paper hover:text-accent"
+              className="rounded-md px-3 py-2 text-sm font-medium text-slate-400 hover:bg-paper hover:text-accent"
             >
               {item.label}
             </Link>
@@ -42,7 +42,7 @@ export function SiteHeader({
             <>
               <Link
                 href="/account"
-                className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent"
+                className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-300 hover:border-accent hover:text-accent"
               >
                 Account
               </Link>
@@ -60,7 +60,7 @@ export function SiteHeader({
             <>
               <Link
                 href="/login"
-                className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent"
+                className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-300 hover:border-accent hover:text-accent"
               >
                 Sign In
               </Link>
@@ -93,14 +93,14 @@ export function SiteHeader({
         </button>
       </div>
       {open ? (
-        <div id="site-navigation" className="border-t border-line bg-white md:hidden">
+        <div id="site-navigation" className="border-t border-line bg-navy-surface md:hidden">
           <nav aria-label="Mobile primary" className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3">
             {nav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-paper hover:text-accent"
+                className="rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-paper hover:text-accent"
               >
                 {item.label}
               </Link>
@@ -111,7 +111,7 @@ export function SiteHeader({
                 <Link
                   href="/account"
                   onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-paper hover:text-accent"
+                  className="rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-paper hover:text-accent"
                 >
                   Account
                 </Link>
@@ -129,7 +129,7 @@ export function SiteHeader({
                 <Link
                   href="/login"
                   onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-paper hover:text-accent"
+                  className="rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-paper hover:text-accent"
                 >
                   Sign In
                 </Link>

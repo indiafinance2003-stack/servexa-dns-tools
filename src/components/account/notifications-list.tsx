@@ -73,9 +73,9 @@ export function NotificationsList({
 
   if (items.length === 0) {
     return (
-      <section className="mt-8 rounded-xl border border-line bg-white p-6">
+      <section className="mt-8 rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-lg font-semibold text-ink">No notifications yet</h2>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-slate-400">
           Notifications appear here when something changes in your account — for example a reply on a
           support request or a ticket status change.
         </p>
@@ -88,7 +88,7 @@ export function NotificationsList({
   return (
     <section className="mt-8">
       {error ? (
-        <p role="alert" className="mb-3 rounded-md bg-red-50 p-3 text-sm text-red-800">
+        <p role="alert" className="mb-3 rounded-md bg-red-500/10 p-3 text-sm text-red-300">
           {error}
         </p>
       ) : null}
@@ -99,7 +99,7 @@ export function NotificationsList({
             type="button"
             onClick={markAllRead}
             disabled={busy !== null}
-            className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent disabled:opacity-60"
+            className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-300 hover:border-accent hover:text-accent disabled:opacity-60"
           >
             {busy === 'all' ? 'Marking…' : `Mark all as read (${unread})`}
           </button>
@@ -111,17 +111,17 @@ export function NotificationsList({
           <li
             key={item.id}
             className={`rounded-xl border p-5 ${
-              item.read ? 'border-line bg-white' : 'border-accent/40 bg-accent-tint/40'
+              item.read ? 'border-line bg-navy-surface' : 'border-accent/40 bg-accent-tint/40'
             }`}
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                   {typeLabels[item.type] ?? item.type}
                 </p>
                 <p className="mt-1 font-medium text-ink">{item.title}</p>
-                <p className="mt-1 text-sm text-slate-600">{item.body}</p>
-                <p className="mt-1 text-xs text-slate-500">{formatTime(item.createdAt)} UTC</p>
+                <p className="mt-1 text-sm text-slate-400">{item.body}</p>
+                <p className="mt-1 text-xs text-slate-400">{formatTime(item.createdAt)} UTC</p>
                 {item.link ? (
                   <a href={item.link} className="mt-2 inline-block text-sm font-medium text-accent hover:text-accent-strong">
                     Open
@@ -133,7 +133,7 @@ export function NotificationsList({
                   type="button"
                   onClick={() => markRead(item.id)}
                   disabled={busy !== null}
-                  className="rounded-md border border-line px-3 py-1.5 text-xs font-medium text-slate-700 hover:border-accent hover:text-accent disabled:opacity-60"
+                  className="rounded-md border border-line px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-accent hover:text-accent disabled:opacity-60"
                 >
                   {busy === item.id ? 'Marking…' : 'Mark read'}
                 </button>

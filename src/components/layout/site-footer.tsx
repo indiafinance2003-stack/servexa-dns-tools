@@ -65,7 +65,7 @@ export function SiteFooter({ authenticated = false }: { authenticated?: boolean 
       ];
 
   return (
-    <footer className="border-t border-line bg-white">
+    <footer className="border-t border-line bg-navy-surface">
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr_1fr_0.8fr]">
           <div>
@@ -73,7 +73,7 @@ export function SiteFooter({ authenticated = false }: { authenticated?: boolean 
               <RavelythMark size={28} />
               <span className="text-lg font-semibold tracking-tight text-ink">Ravelyth</span>
             </div>
-            <p className="mt-3 max-w-sm text-sm text-slate-600">
+            <p className="mt-3 max-w-sm text-sm text-slate-400">
               Free DNS and email diagnostics for developers, administrators, businesses and domain owners. Real
               lookups, structured findings, and no unexplained scores.
             </p>
@@ -84,7 +84,7 @@ export function SiteFooter({ authenticated = false }: { authenticated?: boolean 
               <ul className="mt-3 space-y-2">
                 {column.links.map((link) => (
                   <li key={`${column.title}-${link.label}`}>
-                    <Link href={link.href} className="text-sm text-slate-600 hover:text-accent">
+                    <Link href={link.href} className="text-sm text-slate-400 hover:text-accent">
                       {link.label}
                     </Link>
                   </li>
@@ -97,7 +97,7 @@ export function SiteFooter({ authenticated = false }: { authenticated?: boolean 
             <ul className="mt-3 space-y-2">
               {accountColumn.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-slate-600 hover:text-accent">
+                  <Link href={link.href} className="text-sm text-slate-400 hover:text-accent">
                     {link.label}
                   </Link>
                 </li>
@@ -107,7 +107,7 @@ export function SiteFooter({ authenticated = false }: { authenticated?: boolean 
         </div>
       </div>
       <div className="border-t border-line">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} Ravelyth. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-accent">

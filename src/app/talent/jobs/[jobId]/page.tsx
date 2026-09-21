@@ -42,7 +42,12 @@ export default async function TalentJobDetailPage({ params }: PageProps): Promis
   const code = validJobCode(decodeURIComponent(jobId));
   if (!code) notFound();
 
-  const job = await getPublicJobByCode(code);
+  let job: Awaited<ReturnType<typeof getPublicJobByCode>>;
+  try {
+    job = await getPublicJobByCode(code);
+  } catch {
+    notFound();
+  }
   const salary = formatSalaryRangeMinor(job.salaryMinMinor, job.salaryMaxMinor);
   const band = formatExperienceBand(job.experienceMin, job.experienceMax);
 
@@ -57,7 +62,7 @@ export default async function TalentJobDetailPage({ params }: PageProps): Promis
 
       <header className="mt-4">
         <h1 className="text-3xl font-semibold tracking-tight text-ink">{job.title}</h1>
-        <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
+        <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-400">
           <span>{job.location ?? 'Location discussed during screening'}</span>
           <span>{workModeLabel(job.workMode)}</span>
           <span>{employmentTypeLabel(job.employmentType)}</span>
@@ -67,22 +72,22 @@ export default async function TalentJobDetailPage({ params }: PageProps): Promis
         <p className="mt-1 text-sm text-muted">Reference {job.jobCode}</p>
       </header>
 
-      <div className="mt-8 rounded-xl border border-line bg-white p-6">
+      <div className="mt-8 rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-xl font-semibold text-ink">About the role</h2>
-        <div className="mt-3 whitespace-pre-line text-slate-700">{job.description}</div>
+        <div className="mt-3 whitespace-pre-line text-slate-300">{job.description}</div>
 
         {job.qualification || job.shift ? (
           <dl className="mt-6 grid gap-4 sm:grid-cols-2">
             {job.qualification ? (
               <div>
-                <dt className="text-sm font-medium text-slate-700">Qualification</dt>
-                <dd className="mt-1 text-sm text-slate-600">{job.qualification}</dd>
+                <dt className="text-sm font-medium text-slate-300">Qualification</dt>
+                <dd className="mt-1 text-sm text-slate-400">{job.qualification}</dd>
               </div>
             ) : null}
             {job.shift ? (
               <div>
-                <dt className="text-sm font-medium text-slate-700">Shift</dt>
-                <dd className="mt-1 text-sm text-slate-600">{job.shift}</dd>
+                <dt className="text-sm font-medium text-slate-300">Shift</dt>
+                <dd className="mt-1 text-sm text-slate-400">{job.shift}</dd>
               </div>
             ) : null}
           </dl>
@@ -92,12 +97,12 @@ export default async function TalentJobDetailPage({ params }: PageProps): Promis
           <div className="mt-6 space-y-4">
             {job.requiredSkills.length > 0 ? (
               <div>
-                <h3 className="text-sm font-medium text-slate-700">Required skills</h3>
+                <h3 className="text-sm font-medium text-slate-300">Required skills</h3>
                 <p className="mt-2 flex flex-wrap gap-1.5">
                   {job.requiredSkills.map((skill) => (
                     <span
                       key={skill}
-                      className="rounded-full bg-paper px-2.5 py-0.5 text-xs text-slate-600"
+                      className="rounded-full bg-paper px-2.5 py-0.5 text-xs text-slate-400"
                     >
                       {skill}
                     </span>
@@ -107,12 +112,12 @@ export default async function TalentJobDetailPage({ params }: PageProps): Promis
             ) : null}
             {job.preferredSkills.length > 0 ? (
               <div>
-                <h3 className="text-sm font-medium text-slate-700">Good to have</h3>
+                <h3 className="text-sm font-medium text-slate-300">Good to have</h3>
                 <p className="mt-2 flex flex-wrap gap-1.5">
                   {job.preferredSkills.map((skill) => (
                     <span
                       key={skill}
-                      className="rounded-full bg-paper px-2.5 py-0.5 text-xs text-slate-600"
+                      className="rounded-full bg-paper px-2.5 py-0.5 text-xs text-slate-400"
                     >
                       {skill}
                     </span>
@@ -124,9 +129,9 @@ export default async function TalentJobDetailPage({ params }: PageProps): Promis
         ) : null}
       </div>
 
-      <div className="mt-6 rounded-xl border border-line bg-white p-6 text-center">
+      <div className="mt-6 rounded-xl border border-line bg-navy-surface p-6 text-center">
         <h2 className="text-xl font-semibold text-ink">Interested in this role?</h2>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-slate-400">
           Apply directly with your details and resume. No account needed, and we never charge
           candidates a fee.
         </p>

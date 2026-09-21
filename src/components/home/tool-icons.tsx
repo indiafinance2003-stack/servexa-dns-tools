@@ -57,6 +57,21 @@ const icons: Record<string, React.ReactElement> = {
       <path d="M8 9h8M8 12.5h8M8 16h5" />
     </svg>
   ),
+  server: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="h-5 w-5" aria-hidden="true">
+      <rect x="3.5" y="4.5" width="17" height="7" rx="1.5" />
+      <rect x="3.5" y="12.5" width="17" height="7" rx="1.5" />
+      <path d="M7 8h.01M7 16h.01M11 8h6M11 16h6" />
+    </svg>
+  ),
+  headset: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+      <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
+      <rect x="3.5" y="13" width="4.5" height="7" rx="1.5" />
+      <rect x="16" y="13" width="4.5" height="7" rx="1.5" />
+      <path d="M19.5 19.5a2 2 0 0 1-2 2H15" />
+    </svg>
+  ),
 };
 
 export function ToolIcon({ name, className }: { name: string; className?: string }): React.ReactElement {

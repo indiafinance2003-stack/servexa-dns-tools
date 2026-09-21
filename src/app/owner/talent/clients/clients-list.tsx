@@ -31,18 +31,18 @@ const STATUSES = [
 ] as const;
 
 const statusClasses: Record<string, string> = {
-  PROSPECT: 'bg-slate-100 text-slate-700',
+  PROSPECT: 'bg-slate-800 text-slate-300',
   CONTACTED: 'bg-blue-100 text-blue-700',
-  REPLIED: 'bg-emerald-100 text-emerald-700',
-  CALL_SCHEDULED: 'bg-amber-100 text-amber-700',
+  REPLIED: 'bg-emerald-500/100/15 text-emerald-300',
+  CALL_SCHEDULED: 'bg-amber-500/100/15 text-amber-300',
   REQUIREMENT_RECEIVED: 'bg-violet-100 text-violet-700',
   ACTIVE_CLIENT: 'bg-green-100 text-green-700',
-  FUTURE: 'bg-slate-200 text-slate-600',
-  NOT_INTERESTED: 'bg-red-100 text-red-700',
+  FUTURE: 'bg-slate-700 text-slate-400',
+  NOT_INTERESTED: 'bg-red-500/100/15 text-red-300',
 };
 
-const input = 'w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none';
-const label = 'block text-sm font-medium text-slate-700';
+const input = 'w-full rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none';
+const label = 'block text-sm font-medium text-slate-300';
 
 const emptyForm = {
   companyName: '',
@@ -141,10 +141,10 @@ export function OwnerClientsList() {
 
   return (
     <div className="space-y-6">
-      {error ? <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</div> : null}
+      {error ? <div className="rounded-md border border-red-200 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
+      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-500/10 p-3 text-sm text-emerald-300">{notice}</div> : null}
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <div className="flex flex-wrap items-center gap-3">
           <input
             type="search"
@@ -152,18 +152,18 @@ export function OwnerClientsList() {
             placeholder="Search company, contact, email..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-64 rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-slate-400 focus:border-accent focus:outline-none"
+            className="w-64 rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink placeholder:text-slate-400 focus:border-accent focus:outline-none"
           />
           <select
             aria-label="Filter by client status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-52 rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
+            className="w-52 rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
           >
             <option value="">All statuses</option>
             {STATUSES.map((value) => (<option key={value} value={value}>{value.replace(/_/g, ' ')}</option>))}
           </select>
-          <span className="text-xs text-slate-500">{clients.length} shown</span>
+          <span className="text-xs text-slate-400">{clients.length} shown</span>
           <button
             type="button"
             onClick={() => setShowForm((prev) => !prev)}
@@ -172,7 +172,7 @@ export function OwnerClientsList() {
             {showForm ? 'Close form' : 'New client'}
           </button>
           {loading ? (
-            <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="flex items-center gap-2 text-sm text-slate-400">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
               Loading...
             </div>
@@ -238,7 +238,7 @@ export function OwnerClientsList() {
               <button type="button" onClick={() => void create()} disabled={saving} className="inline-flex items-center rounded-md bg-accent px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-accent/90 disabled:opacity-50">
                 {saving ? 'Saving...' : 'Create client'}
               </button>
-              <button type="button" onClick={() => { setForm(emptyForm); setShowForm(false); }} className="inline-flex items-center rounded-md border border-line bg-white px-4 py-2 text-sm font-medium text-ink transition hover:bg-slate-50">
+              <button type="button" onClick={() => { setForm(emptyForm); setShowForm(false); }} className="inline-flex items-center rounded-md border border-line bg-navy-surface px-4 py-2 text-sm font-medium text-ink transition hover:bg-slate-800">
                 Cancel
               </button>
             </div>
@@ -246,11 +246,11 @@ export function OwnerClientsList() {
         ) : null}
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Client list ({clients.length})</h2>
         {!loading && clients.length === 0 ? (
           <div className="mt-6 border border-dashed border-line py-12 text-center">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-400">
               {query || status ? 'No clients match these filters.' : 'No clients yet. Add the first employer relationship.'}
             </p>
           </div>
@@ -260,15 +260,15 @@ export function OwnerClientsList() {
             <div key={client.id} className="flex flex-wrap items-center gap-3 py-4 first:pt-0 last:pb-0">
               <Link href={'/owner/talent/clients/' + client.id} className="min-w-0 flex-1">
                 <p className="truncate text-base font-semibold text-ink">{client.companyName}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-400">
                   {[client.industry, client.companyLocation, client.companySize].filter(Boolean).join(' - ') || 'No details recorded'}
                 </p>
               </Link>
-              <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[client.status] ?? 'bg-slate-100 text-slate-700')}>
+              <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[client.status] ?? 'bg-slate-800 text-slate-300')}>
                 {client.status.replace(/_/g, ' ')}
               </span>
-              {client.contactName ? <span className="text-xs text-slate-500">{client.contactName}</span> : null}
-              {client.contactEmail ? <span className="text-xs text-slate-500">{client.contactEmail}</span> : null}
+              {client.contactName ? <span className="text-xs text-slate-400">{client.contactName}</span> : null}
+              {client.contactEmail ? <span className="text-xs text-slate-400">{client.contactEmail}</span> : null}
               <Link href={'/owner/talent/clients/' + client.id} className="rounded-md px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/10">
                 View
               </Link>

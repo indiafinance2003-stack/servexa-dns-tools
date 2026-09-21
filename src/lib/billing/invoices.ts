@@ -1,6 +1,7 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { config } from '@/lib/config';
 import { dbFromRequest } from '@/lib/db/request';
+import { isPaymentConfigured } from './providers';
 import {
   invoices,
   INVOICE_STATUSES,
@@ -134,5 +135,5 @@ export async function nextInvoiceNumber(now: Date = new Date()): Promise<string>
  * false the UI must not show any checkout or "pay now" affordance.
  */
 export function invoiceGenerationAvailable(): boolean {
-  return config.BILLING_PROVIDER.length > 0;
+  return isPaymentConfigured();
 }

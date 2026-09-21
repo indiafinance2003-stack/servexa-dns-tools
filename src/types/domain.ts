@@ -83,6 +83,25 @@ export interface DNSLookupResult {
   status: DNSLookupStatus;
   queryTime: number;
   resolver?: string;
+  /** Present on successful lookups; sources are learned from IANA bootstrap. */
+  rdap?: DnsLookupRdap;
+}
+
+export interface RdapNetworkResult {
+  ip: string;
+  handle: string | null;
+  name: string | null;
+  country: string | null;
+  startAddress: string;
+  endAddress: string;
+  ipVersion: 'v4' | 'v6';
+  organization: string | null;
+  notes: string[];
+}
+
+export interface DnsLookupRdap {
+  domain: DomainInfoResult | null;
+  networks: RdapNetworkResult[];
 }
 
 export interface SPFMechanism {

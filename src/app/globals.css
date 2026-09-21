@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html {
@@ -15,17 +15,17 @@ body {
 }
 
 ::selection {
-  @apply bg-accent-tint text-ink;
+  @apply bg-accent/40 text-white;
 }
 
 :focus-visible {
-  @apply outline-none ring-2 ring-accent ring-offset-2;
+  @apply outline-none ring-2 ring-accent-soft ring-offset-2 ring-offset-paper;
 }
 
 /* Subtle technical grid used behind hero sections. */
 .bg-tech-grid {
   background-image:
-    linear-gradient(to right, rgba(15, 118, 110, 0.045) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 118, 110, 0.045) 1px, transparent 1px);
+    linear-gradient(to right, rgba(37, 99, 235, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(37, 99, 235, 0.06) 1px, transparent 1px);
   background-size: 36px 36px;
 }

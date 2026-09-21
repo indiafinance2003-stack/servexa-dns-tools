@@ -22,7 +22,7 @@ export default async function RegisterPage(): Promise<React.ReactElement> {
         A free account lets you save DNS lookup results for later. Public tools remain available without an
         account.
       </p>
-      <div className="mt-8 rounded-xl border border-line bg-white p-6">
+      <div className="mt-8 rounded-xl border border-line bg-navy-surface p-6">
         <RegisterForm />
       </div>
     </div>

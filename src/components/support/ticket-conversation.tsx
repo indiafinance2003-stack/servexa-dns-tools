@@ -87,10 +87,10 @@ export function TicketConversation({
   function renderConversation(): React.ReactNode {
     return (
       <>
-        <section className="rounded-xl border border-line bg-white p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Conversation</h2>
+        <section className="rounded-xl border border-line bg-navy-surface p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Conversation</h2>
           {messages.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-600">No messages yet.</p>
+            <p className="mt-3 text-sm text-slate-400">No messages yet.</p>
           ) : (
             <ol className="mt-4 space-y-4">
               {messages.map((message) => (
@@ -100,25 +100,25 @@ export function TicketConversation({
                 >
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="text-sm font-medium text-ink">{message.authorLabel}</p>
-                    <p className="text-xs text-slate-500">{formatMessageTime(message.createdAt)} UTC</p>
+                    <p className="text-xs text-slate-400">{formatMessageTime(message.createdAt)} UTC</p>
                   </div>
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">{message.body}</p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-slate-300">{message.body}</p>
                 </li>
               ))}
             </ol>
           )}
         </section>
 
-        <section className="mt-4 rounded-xl border border-line bg-white p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Actions</h2>
+        <section className="mt-4 rounded-xl border border-line bg-navy-surface p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Actions</h2>
 
           {confirmed ? (
-            <p role="status" className="mt-3 rounded-md bg-emerald-50 p-3 text-sm text-emerald-800">
+            <p role="status" className="mt-3 rounded-md bg-emerald-500/10 p-3 text-sm text-emerald-300">
               {confirmed}
             </p>
           ) : null}
           {error ? (
-            <p role="alert" className="mt-3 rounded-md bg-red-50 p-3 text-sm text-red-800">
+            <p role="alert" className="mt-3 rounded-md bg-red-500/10 p-3 text-sm text-red-300">
               {error}
             </p>
           ) : null}
@@ -136,7 +136,7 @@ export function TicketConversation({
                   rows={4}
                   disabled={busy !== null}
                 />
-                <span className="mt-1 block text-xs text-slate-500">{reply.length}/5000 characters</span>
+                <span className="mt-1 block text-xs text-slate-400">{reply.length}/5000 characters</span>
               </label>
               <button
                 type="submit"
@@ -147,7 +147,7 @@ export function TicketConversation({
               </button>
             </form>
           ) : (
-            <p className="mt-3 text-sm text-slate-600">
+            <p className="mt-3 text-sm text-slate-400">
               Replying is disabled while the ticket is resolved or closed. Reopen it to continue the
               conversation.
             </p>
@@ -159,7 +159,7 @@ export function TicketConversation({
                 type="button"
                 onClick={() => runAction('close')}
                 disabled={busy !== null}
-                className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-700 hover:border-red-300 hover:text-red-700 disabled:opacity-60"
+                className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-300 hover:border-red-300 hover:text-red-300 disabled:opacity-60"
               >
                 {busy === 'close' ? 'Closing…' : 'Close ticket'}
               </button>
@@ -169,7 +169,7 @@ export function TicketConversation({
                 type="button"
                 onClick={() => runAction('confirm_resolution')}
                 disabled={busy !== null}
-                className="rounded-md border border-emerald-200 px-3 py-1.5 text-sm font-medium text-emerald-700 hover:bg-emerald-50 disabled:opacity-60"
+                className="rounded-md border border-emerald-200 px-3 py-1.5 text-sm font-medium text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-60"
               >
                 {busy === 'confirm_resolution' ? 'Confirming…' : 'Confirm resolution'}
               </button>
@@ -179,13 +179,13 @@ export function TicketConversation({
                 type="button"
                 onClick={() => runAction('reopen')}
                 disabled={busy !== null}
-                className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent disabled:opacity-60"
+                className="rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-300 hover:border-accent hover:text-accent disabled:opacity-60"
               >
                 {busy === 'reopen' ? 'Reopening…' : 'Reopen ticket'}
               </button>
             ) : null}
           </div>
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-slate-400">
             Closing or confirming stops the work; reopening returns the ticket to the support queue with
             its full history. Every action is recorded in the ticket timeline.
           </p>

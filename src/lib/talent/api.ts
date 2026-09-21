@@ -67,9 +67,16 @@ export function checkApplicationRateLimit(key: string): void {
   }
 }
 
-/** Stable per-client key for unauthenticated application submissions. */
+/** Stable per-client key for unauthenticated application submissions.
+ * Trusts the reverse-proxy headers only when TRUST_PROXY_HEADERS is enabled;
+ * otherwise all clients share one bucket so a spoofed header cannot reset it. */
 export function clientKeyOf(headers: Headers): string {
-  const forwarded = headers.get('x-forwarded-for');
-  const ip = forwarded?.split(',')[0]?.trim() || headers.get('x-real-ip') || 'local';
-  return ip.slice(0, 128);
+  if (config.TRUST_PROXY_HEADERS) {
+    const forwarded = headers.get('x-forwarded-for');
+    const forwardedIp = forwarded?.split(',')[0]?.trim();
+    if (forwardedIp) return forwardedIp.slice(0, 128);
+    const realIp = headers.get('x-real-ip');
+    if (realIp) return realIp.slice(0, 128);
+  }
+  return 'untrusted';
 }

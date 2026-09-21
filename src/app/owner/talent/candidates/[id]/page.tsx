@@ -34,7 +34,7 @@ export default async function OwnerCandidateDetailPage({ params }: Props) {
         </div>
         <Link
           href="/owner/talent/candidates"
-          className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-medium text-ink transition hover:border-accent hover:shadow-sm"
+          className="inline-flex items-center gap-2 rounded-lg border border-line bg-navy-surface px-4 py-2 text-sm font-medium text-ink transition hover:border-accent hover:shadow-sm"
         >
           <span className="text-lg">←</span> Back to Candidates
         </Link>

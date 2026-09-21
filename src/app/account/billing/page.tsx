@@ -5,6 +5,7 @@ import { getCurrentSubscription, billingDisplayInfo, canPurchaseManagedSupport, 
 import { listInvoices } from '@/lib/billing/invoices';
 import { getManagedSupportEntitlement, entitlementLabel } from '@/lib/support/entitlement';
 import { AccountNav } from '@/components/account/account-nav';
+import { StartCheckoutButton } from '@/components/billing/start-checkout-button';
 
 export const metadata: Metadata = {
   title: 'Billing',
@@ -50,7 +51,7 @@ export default async function BillingPage(): Promise<React.ReactElement> {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="text-3xl font-semibold tracking-tight text-ink">Billing</h1>
-      <AccountNav />
+      <AccountNav entitled={entitlement?.entitled ?? false} />
       <BillingBody
         loadError={loadError}
         subscription={subscription}
@@ -85,7 +86,7 @@ function BillingBody({
 }: BillingBodyProps): React.ReactElement {
   if (loadError) {
     return (
-      <p role="alert" className="mt-8 rounded-md bg-red-50 p-3 text-sm text-red-800">
+      <p role="alert" className="mt-8 rounded-md bg-red-500/10 p-3 text-sm text-red-300">
         {loadError}
       </p>
     );
@@ -93,24 +94,24 @@ function BillingBody({
 
   return (
     <>
-      <section className="mt-8 rounded-xl border border-line bg-white p-6">
+      <section className="mt-8 rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-lg font-semibold text-ink">Current plan</h2>
         {subscription ? (
           <dl className="mt-4 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-slate-600">Plan</dt>
+              <dt className="text-slate-400">Plan</dt>
               <dd className="mt-0.5 font-medium text-ink">{subscription.planName}</dd>
             </div>
             <div>
-              <dt className="text-slate-600">Status</dt>
+              <dt className="text-slate-400">Status</dt>
               <dd className="mt-0.5 font-medium text-ink">{subscriptionStatusLabel(subscription.status)}</dd>
             </div>
             <div>
-              <dt className="text-slate-600">Billing interval</dt>
+              <dt className="text-slate-400">Billing interval</dt>
               <dd className="mt-0.5 text-ink">{subscription.billingInterval}</dd>
             </div>
             <div>
-              <dt className="text-slate-600">Recorded price</dt>
+              <dt className="text-slate-400">Recorded price</dt>
               <dd className="mt-0.5 text-ink">
                 {subscription.priceMinor !== null
                   ? `${formatMoney(subscription.priceMinor, subscription.currency)} / ${intervalLabel}`
@@ -118,18 +119,18 @@ function BillingBody({
               </dd>
             </div>
             <div>
-              <dt className="text-slate-600">Current period</dt>
+              <dt className="text-slate-400">Current period</dt>
               <dd className="mt-0.5 text-ink">
                 {formatDate(subscription.currentPeriodStart)} → {formatDate(subscription.currentPeriodEnd)}
               </dd>
             </div>
             <div>
-              <dt className="text-slate-600">Payment provider reference</dt>
+              <dt className="text-slate-400">Payment provider reference</dt>
               <dd className="mt-0.5 text-ink">{subscription.providerLinked ? 'Recorded' : 'None'}</dd>
             </div>
           </dl>
         ) : (
-          <p className="mt-3 text-sm text-slate-600">
+          <p className="mt-3 text-sm text-slate-400">
             No subscription is recorded on your account. Every diagnostic tool and the Knowledge Base
             remain free; Managed Support is a separate plan.
           </p>
@@ -158,9 +159,9 @@ function ManagedSupportSection({
   intervalLabel: string;
 }): React.ReactElement {
   return (
-    <section className="mt-4 rounded-xl border border-line bg-white p-6">
+    <section className="mt-4 rounded-xl border border-line bg-navy-surface p-6">
       <h2 className="text-lg font-semibold text-ink">Managed Support</h2>
-      <p className="mt-2 text-sm text-slate-600">
+      <p className="mt-2 text-sm text-slate-400">
         {display.planName} — {formatMoney(display.amountMinor, display.currency)} per {intervalLabel}.
         {entitlement ? (
           <>
@@ -172,12 +173,24 @@ function ManagedSupportSection({
         ) : null}
       </p>
       {purchasable ? (
-        <p className="mt-3 text-sm text-slate-700">
-          Online subscription is available. Purchases are handled through the configured billing provider
-          only, and your subscription appears here once a real record exists.
-        </p>
+        <div className="mt-4 space-y-3">
+          {entitlement?.entitled ? (
+            <p className="text-sm text-emerald-300">
+              Managed Support is active on your account, so no new purchase is needed.
+            </p>
+          ) : (
+            <>
+              <p className="text-sm text-slate-300">
+                You can subscribe now. Payment is created and verified through the configured
+                provider; your subscription appears here only after the payment is verified
+                server-side.
+              </p>
+              <StartCheckoutButton label="Subscribe now" />
+            </>
+          )}
+        </div>
       ) : (
-        <div className="mt-3 rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+        <div className="mt-3 rounded-md bg-amber-500/10 p-3 text-sm text-amber-300">
           <p className="font-medium">Billing integration is pending.</p>
           <p className="mt-1">
             No payment provider is connected, so no subscription can be purchased or charged through this
@@ -189,7 +202,7 @@ function ManagedSupportSection({
           </p>
         </div>
       )}
-      <p className="mt-3 text-sm text-slate-600">
+      <p className="mt-3 text-sm text-slate-400">
         See the public{' '}
         <Link href="/pricing" className="font-medium text-accent hover:text-accent-strong">
           pricing page
@@ -206,10 +219,10 @@ function InvoiceSection({
   invoices: Awaited<ReturnType<typeof listInvoices>>;
 }): React.ReactElement {
   return (
-    <section className="mt-4 rounded-xl border border-line bg-white p-6">
+    <section className="mt-4 rounded-xl border border-line bg-navy-surface p-6">
       <h2 className="text-lg font-semibold text-ink">Invoices</h2>
       {invoices.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-600">
+        <p className="mt-3 text-sm text-slate-400">
           No invoices exist for your account. Ravelyth never creates placeholder or simulated invoices —
           an invoice appears here only after a real billing record exists.
         </p>
@@ -217,7 +230,7 @@ function InvoiceSection({
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-slate-500">
+              <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-slate-400">
                 <th className="py-2 pr-4">Invoice</th>
                 <th className="py-2 pr-4">Status</th>
                 <th className="py-2 pr-4">Amount</th>

@@ -1,4 +1,4 @@
-import { DNSRecordType, NameserverAnalysis, NameserverDetail } from '@/types/domain';
+import { DNSLookupStatus, DNSRecordType, NameserverAnalysis, NameserverDetail } from '@/types/domain';
 import { QueryBudget, resolveDNS } from '@/lib/dns/resolver/dns-resolver';
 import { normalizeARecords, normalizeAAAARecords, normalizeNSRecords } from '@/lib/dns/normalization/dns-normalizer';
 import { finding } from '@/lib/dns/analysis/findings';
@@ -37,12 +37,33 @@ export async function analyzeNameservers(
       ...normalizeAAAARecords(aaaa?.records ?? []).map((r) => r.address),
     ];
     const resolved = addresses.length > 0;
+    let lookupStatus: DNSLookupStatus = 'success';
+    let error: string | undefined;
+    if (!resolved) {
+      const failed = [a, aaaa].find(
+        (item) =>
+          item.status === 'servfail' ||
+          item.status === 'refused' ||
+          item.status === 'timeout' ||
+          item.status === 'error'
+      );
+      if (failed) {
+        lookupStatus = failed.status;
+        error = failed.error;
+      } else if (a.status === 'nxdomain' || aaaa.status === 'nxdomain') {
+        lookupStatus = 'nxdomain';
+        error = a.status === 'nxdomain' ? a.error : aaaa.error;
+      } else {
+        lookupStatus = 'empty';
+        error = a.error || aaaa.error;
+      }
+    }
     nameservers.push({
       hostname: host,
       addresses,
       resolved,
-      lookupStatus: resolved ? 'success' : a?.status === 'timeout' || aaaa?.status === 'timeout' ? 'timeout' : 'empty',
-      error: resolved ? undefined : a?.error || aaaa?.error,
+      lookupStatus,
+      error,
     });
   }
 
@@ -81,17 +102,41 @@ export async function analyzeNameservers(
     );
   }
 
-  const unresolved = nameservers.filter((ns) => !ns.resolved);
-  if (unresolved.length > 0) {
+  const cleanUnresolved = nameservers.filter(
+    (ns) => !ns.resolved && (ns.lookupStatus === 'empty' || ns.lookupStatus === 'nxdomain')
+  );
+  if (cleanUnresolved.length > 0) {
     findings.push(
       finding(
         'NS_UNRESOLVED',
         'error',
         'nameserver',
         'Nameserver hostname did not resolve',
-        unresolved.map((ns) => ns.hostname).join(', '),
-        'A nameserver hostname that does not resolve to an address cannot be reached using standard A/AAAA lookups from this resolver.',
-        { evidence: { unresolved } }
+        cleanUnresolved.map((ns) => ns.hostname).join(', '),
+        'A nameserver hostname that has no A/AAAA record cannot be reached using standard lookups. This observation is from a single resolver.',
+        { evidence: { unresolved: cleanUnresolved.map((ns) => ({ hostname: ns.hostname, status: ns.lookupStatus })) } }
+      )
+    );
+  }
+
+  const lookupFailures = nameservers.filter(
+    (ns) =>
+      !ns.resolved &&
+      (ns.lookupStatus === 'servfail' ||
+        ns.lookupStatus === 'refused' ||
+        ns.lookupStatus === 'timeout' ||
+        ns.lookupStatus === 'error')
+  );
+  if (lookupFailures.length > 0) {
+    findings.push(
+      finding(
+        'NS_IP_LOOKUP_FAILED',
+        'warning',
+        'nameserver',
+        'Nameserver address lookup failed',
+        `${lookupFailures.map((ns) => ns.hostname).join(', ')} (${[...new Set(lookupFailures.map((ns) => ns.lookupStatus))].join(', ')})`,
+        'The resolver did not answer the A/AAAA queries, so the nameserver cannot be confirmed reachable or unreachable either way.',
+        { evidence: { failures: lookupFailures.map((ns) => ({ hostname: ns.hostname, status: ns.lookupStatus, error: ns.error })) } }
       )
     );
   }

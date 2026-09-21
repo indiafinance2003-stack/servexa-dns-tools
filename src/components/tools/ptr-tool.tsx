@@ -27,7 +27,7 @@ export function PtrTool({ initialIp }: { initialIp?: string }): React.ReactEleme
 
   return (
     <div className="space-y-6">
-      <form onSubmit={onSubmit} className="flex flex-col gap-4 rounded-xl border border-line bg-white p-4 sm:flex-row">
+      <form onSubmit={onSubmit} className="flex flex-col gap-4 rounded-xl border border-line bg-navy-surface p-4 sm:flex-row">
         <label className="block flex-1">
           <span className="mb-1 block text-sm font-medium text-ink">Public IP address</span>
           <input
@@ -49,18 +49,18 @@ export function PtrTool({ initialIp }: { initialIp?: string }): React.ReactEleme
           </button>
         </div>
       </form>
-      {error ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
+      {error ? <p className="rounded-md bg-red-500/10 p-3 text-sm text-red-300">{error}</p> : null}
       {result ? (
-        <section className="rounded-xl border border-line bg-white p-6">
+        <section className="rounded-xl border border-line bg-navy-surface p-6">
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <span className="font-mono text-xs text-ink">{result.ip}</span>
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset ${
                 result.status === 'success'
-                  ? 'bg-emerald-50 text-emerald-900 ring-emerald-200'
+                  ? 'bg-emerald-500/10 text-emerald-300 ring-emerald-500/40'
                   : result.status === 'empty'
-                    ? 'bg-amber-50 text-amber-900 ring-amber-300'
-                    : 'bg-red-50 text-red-900 ring-red-300'
+                    ? 'bg-amber-500/10 text-amber-300 ring-amber-500/40'
+                    : 'bg-red-500/10 text-red-300 ring-red-500/40'
               }`}
             >
               {result.status}

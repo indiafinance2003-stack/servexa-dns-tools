@@ -9,8 +9,8 @@ export interface ApplyJobSummary {
   workMode: string;
 }
 
-const inputClass = 'w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-slate-400 focus:border-accent focus:outline-none';
-const labelClass = 'block text-sm font-medium text-slate-700';
+const inputClass = 'w-full rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink placeholder:text-slate-400 focus:border-accent focus:outline-none';
+const labelClass = 'block text-sm font-medium text-slate-300';
 
 const initialValues: Record<string, string> = {
   fullName: '', email: '', phone: '', whatsapp: '',
@@ -62,18 +62,18 @@ export function TalentApplyForm({ job }: { job: ApplyJobSummary }) {
 
   if (status === 'success') {
     return (
-      <div className="rounded-xl border border-line bg-white p-6" role="status">
+      <div className="rounded-xl border border-line bg-navy-surface p-6" role="status">
         <h2 className="text-lg font-semibold text-ink">Application received</h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">{SUCCESS_MESSAGE}</p>
-        {duplicate && <p className="mt-3 text-sm text-slate-600">We found an existing application.</p>}
+        <p className="mt-2 text-sm leading-relaxed text-slate-400">{SUCCESS_MESSAGE}</p>
+        {duplicate && <p className="mt-3 text-sm text-slate-400">We found an existing application.</p>}
       </div>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="rounded-xl border border-line bg-white p-6">
+    <form onSubmit={onSubmit} noValidate className="rounded-xl border border-line bg-navy-surface p-6">
       {status === 'error' && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
+        <div className="mb-4 rounded-md border border-red-200 bg-red-500/10 p-3 text-sm text-red-300" role="alert">
           Something went wrong. Please check your details and try again.
         </div>
       )}
@@ -160,7 +160,7 @@ export function TalentApplyForm({ job }: { job: ApplyJobSummary }) {
           <input id="resume" name="resume" type="file" accept=".pdf,.doc,.docx" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-accent file:text-white file:text-sm hover:file:bg-accent/80 w-full" />
         </div>
         <div className="sm:col-span-2">
-          <label className="flex items-start gap-3 cursor-pointer text-sm font-medium text-slate-700">
+          <label className="flex items-start gap-3 cursor-pointer text-sm font-medium text-slate-300">
             <input type="checkbox" id="consent" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 h-4 w-4 rounded border-line text-accent focus:ring-accent" />
             <span>I consent to Ravelyth storing my personal data for recruitment purposes and contacting me about relevant opportunities.</span>
           </label>

@@ -38,7 +38,7 @@ export function RegisterForm(): React.ReactElement {
   return (
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
       {error ? (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+        <p role="alert" className="rounded-md bg-red-500/10 p-3 text-sm text-red-300">
           {error}
         </p>
       ) : null}
@@ -106,7 +106,7 @@ export function RegisterForm(): React.ReactElement {
       >
         {loading ? 'Creating account…' : 'Create account'}
       </button>
-      <p className="text-center text-sm text-slate-600">
+      <p className="text-center text-sm text-slate-400">
         Already have an account?{' '}
         <Link href="/login" className="font-medium text-accent hover:text-accent-strong">
           Sign in

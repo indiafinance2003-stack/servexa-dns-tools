@@ -30,7 +30,7 @@ export function EmailAnalyzerTool(): React.ReactElement {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-line bg-white p-4">
+      <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-line bg-navy-surface p-4">
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-ink">Raw email headers</span>
           <textarea
@@ -46,14 +46,14 @@ export function EmailAnalyzerTool(): React.ReactElement {
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              className="rounded-md border border-line bg-white px-3 py-2 text-ink hover:border-accent hover:text-accent"
+              className="rounded-md border border-line bg-navy-surface px-3 py-2 text-ink hover:border-accent hover:text-accent"
               onClick={() => setHeaders(SAMPLE_EMAIL_HEADERS)}
             >
               Paste sample header
             </button>
             <button
               type="button"
-              className="rounded-md border border-line bg-white px-3 py-2 text-ink hover:border-accent hover:text-accent"
+              className="rounded-md border border-line bg-navy-surface px-3 py-2 text-ink hover:border-accent hover:text-accent"
               onClick={() => {
                 setHeaders('');
                 setResult(null);
@@ -72,7 +72,7 @@ export function EmailAnalyzerTool(): React.ReactElement {
           </div>
         </div>
       </form>
-      {error ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
+      {error ? <p className="rounded-md bg-red-500/10 p-3 text-sm text-red-300">{error}</p> : null}
       {result ? <EmailResults result={result} /> : null}
     </div>
   );
@@ -81,24 +81,24 @@ export function EmailAnalyzerTool(): React.ReactElement {
 function EmailResults({ result }: { result: EmailAnalysis }): React.ReactElement {
   return (
     <div className="space-y-4">
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="mb-2 font-semibold text-ink">Summary</h2>
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-slate-300">
           {result.summary.headerCount} headers · {result.summary.hopCount} Received hops ·{' '}
           {result.summary.dkimSignatureCount} DKIM-Signature header(s) · {result.summary.reportedAuthMethodCount} reported
           authentication method(s)
         </p>
       </section>
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="mb-2 font-semibold text-ink">Sender / Recipients</h2>
         <dl className="grid gap-2 text-sm sm:grid-cols-2">
-          <div><dt className="text-slate-500">From</dt><dd className="text-ink">{result.senderRecipients.from || '—'}</dd></div>
-          <div><dt className="text-slate-500">Return-Path</dt><dd className="text-ink">{result.senderRecipients.returnPath || '—'}</dd></div>
-          <div><dt className="text-slate-500">To</dt><dd className="text-ink">{result.senderRecipients.to.join(', ') || '—'}</dd></div>
-          <div><dt className="text-slate-500">Reply-To</dt><dd className="text-ink">{result.senderRecipients.replyTo || '—'}</dd></div>
+          <div><dt className="text-slate-400">From</dt><dd className="text-ink">{result.senderRecipients.from || '—'}</dd></div>
+          <div><dt className="text-slate-400">Return-Path</dt><dd className="text-ink">{result.senderRecipients.returnPath || '—'}</dd></div>
+          <div><dt className="text-slate-400">To</dt><dd className="text-ink">{result.senderRecipients.to.join(', ') || '—'}</dd></div>
+          <div><dt className="text-slate-400">Reply-To</dt><dd className="text-ink">{result.senderRecipients.replyTo || '—'}</dd></div>
         </dl>
       </section>
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="mb-2 font-semibold text-ink">Authentication</h2>
         <p className="mb-3 text-sm text-muted">{result.authentication.verificationPerformedByThisTool.note}</p>
         <h3 className="text-sm font-medium text-ink">Reported by receiving server</h3>
@@ -123,24 +123,24 @@ function EmailResults({ result }: { result: EmailAnalysis }): React.ReactElement
         <h3 className="mt-4 text-sm font-medium text-ink">Verification performed by this tool</h3>
         <p className="text-sm text-ink">SPF not performed · DKIM not performed · DMARC not performed</p>
       </section>
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="mb-2 font-semibold text-ink">Received chain</h2>
         <p className="mb-3 text-sm text-muted">{result.receivedChain.chronologicalNote}</p>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <thead className="bg-paper">
               <tr className="border-b border-line">
-                <th className="px-2 py-2 font-medium text-slate-500">#</th>
-                <th className="px-2 py-2 font-medium text-slate-500">From</th>
-                <th className="px-2 py-2 font-medium text-slate-500">By</th>
-                <th className="px-2 py-2 font-medium text-slate-500">With</th>
-                <th className="px-2 py-2 font-medium text-slate-500">IPs</th>
-                <th className="px-2 py-2 font-medium text-slate-500">Time</th>
+                <th className="px-2 py-2 font-medium text-slate-400">#</th>
+                <th className="px-2 py-2 font-medium text-slate-400">From</th>
+                <th className="px-2 py-2 font-medium text-slate-400">By</th>
+                <th className="px-2 py-2 font-medium text-slate-400">With</th>
+                <th className="px-2 py-2 font-medium text-slate-400">IPs</th>
+                <th className="px-2 py-2 font-medium text-slate-400">Time</th>
               </tr>
             </thead>
             <tbody>
               {result.receivedChain.hops.map((hop, index) => (
-                <tr key={hop.rawContent} className="border-b border-slate-100 align-top">
+                <tr key={hop.rawContent} className="border-b border-slate-800 align-top">
                   <td className="px-2 py-2 text-ink">{index + 1}</td>
                   <td className="px-2 py-2 text-ink">{hop.from || '—'}</td>
                   <td className="px-2 py-2 text-ink">{hop.by || '—'}</td>
@@ -153,7 +153,7 @@ function EmailResults({ result }: { result: EmailAnalysis }): React.ReactElement
           </table>
         </div>
       </section>
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="mb-2 font-semibold text-ink">Domains</h2>
         <ul className="space-y-2 text-sm">
           {result.domains.map((item) => (
@@ -164,17 +164,17 @@ function EmailResults({ result }: { result: EmailAnalysis }): React.ReactElement
           ))}
         </ul>
       </section>
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="mb-2 font-semibold text-ink">Message metadata</h2>
         <pre className="overflow-x-auto rounded-lg bg-paper p-4 font-mono text-xs text-ink">
           {JSON.stringify(result.metadata, null, 2)}
         </pre>
       </section>
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="mb-3 font-semibold text-ink">Security observations</h2>
         <FindingsList findings={result.observations} />
       </section>
-      <details className="rounded-xl border border-line bg-white p-6">
+      <details className="rounded-xl border border-line bg-navy-surface p-6">
         <summary className="cursor-pointer font-semibold text-ink">Technical details</summary>
         <pre className="mt-3 overflow-x-auto rounded-lg bg-paper p-4 font-mono text-xs text-ink">
           {JSON.stringify(result.technicalDetails, null, 2)}

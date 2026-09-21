@@ -25,26 +25,26 @@ interface ApplicationDetailProps {
 }
 
 const statusClasses: Record<string, string> = {
-  NEW: 'bg-slate-100 text-slate-700',
+  NEW: 'bg-slate-800 text-slate-300',
   SCREENING: 'bg-blue-100 text-blue-700',
   CONTACTED: 'bg-purple-100 text-purple-700',
   INTERESTED: 'bg-indigo-100 text-indigo-700',
-  SHORTLISTED: 'bg-emerald-100 text-emerald-700',
+  SHORTLISTED: 'bg-emerald-500/100/15 text-emerald-300',
   CLIENT_SUBMITTED: 'bg-cyan-100 text-cyan-700',
-  INTERVIEW: 'bg-amber-100 text-amber-700',
+  INTERVIEW: 'bg-amber-500/100/15 text-amber-300',
   SELECTED: 'bg-blue-100 text-blue-700',
   OFFER: 'bg-violet-100 text-violet-700',
   JOINED: 'bg-green-100 text-green-700',
-  REJECTED: 'bg-red-100 text-red-700',
-  WITHDRAWN: 'bg-slate-100 text-slate-700',
-  NO_RESPONSE: 'bg-slate-100 text-slate-700',
+  REJECTED: 'bg-red-500/100/15 text-red-300',
+  WITHDRAWN: 'bg-slate-800 text-slate-300',
+  NO_RESPONSE: 'bg-slate-800 text-slate-300',
   ON_HOLD: 'bg-yellow-100 text-yellow-700',
 };
 
 /** CLIENT_SUBMITTED is the transition the server refuses unless the pipeline is ready. */
 const GUARDED = new Set(['CLIENT_SUBMITTED']);
 
-const dt = 'text-xs font-medium uppercase tracking-wide text-slate-500';
+const dt = 'text-xs font-medium uppercase tracking-wide text-slate-400';
 const dd = 'mt-1 text-sm text-ink';
 
 function formatDate(value: string): string {
@@ -129,16 +129,16 @@ export default function ApplicationDetail({ application, nextStatuses, pipeline 
 
   return (
     <div className="space-y-6">
-      {error ? <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</div> : null}
+      {error ? <div className="rounded-md border border-red-200 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
+      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-500/10 p-3 text-sm text-emerald-300">{notice}</div> : null}
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-ink">{application.jobTitle}</h2>
-            <p className="mt-1 text-xs text-slate-500">{application.jobCode}</p>
+            <p className="mt-1 text-xs text-slate-400">{application.jobCode}</p>
           </div>
-          <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[status] ?? 'bg-slate-100 text-slate-700')}>
+          <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[status] ?? 'bg-slate-800 text-slate-300')}>
             {status.replace(/_/g, ' ')}
           </span>
         </div>
@@ -154,7 +154,7 @@ export default function ApplicationDetail({ application, nextStatuses, pipeline 
 
         <div className="mt-6">
           <h3 className={dt}>Candidate confirmation</h3>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-400">
             {confirmationReached
               ? 'The candidate has been reached through the pipeline. Client submission is permitted once the application is SHORTLISTED.'
               : 'The candidate has not reached the CONTACTED stage yet, so client submission is blocked on the server.'}
@@ -162,16 +162,16 @@ export default function ApplicationDetail({ application, nextStatuses, pipeline 
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          <Link href={'/owner/talent/candidates/' + application.candidateId} className="inline-flex items-center rounded-md border border-line bg-white px-4 py-2 text-sm font-medium text-ink shadow-sm transition hover:bg-slate-50">
+          <Link href={'/owner/talent/candidates/' + application.candidateId} className="inline-flex items-center rounded-md border border-line bg-navy-surface px-4 py-2 text-sm font-medium text-ink shadow-sm transition hover:bg-slate-800">
             View candidate
           </Link>
-          <Link href={'/owner/talent/jobs/' + application.jobId} className="inline-flex items-center rounded-md border border-line bg-white px-4 py-2 text-sm font-medium text-ink shadow-sm transition hover:bg-slate-50">
+          <Link href={'/owner/talent/jobs/' + application.jobId} className="inline-flex items-center rounded-md border border-line bg-navy-surface px-4 py-2 text-sm font-medium text-ink shadow-sm transition hover:bg-slate-800">
             View job
           </Link>
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Pipeline</h2>
         <ol className="mt-4 flex flex-wrap gap-2">
           {pipeline.map((stage, index) => {
@@ -185,8 +185,8 @@ export default function ApplicationDetail({ application, nextStatuses, pipeline 
                   (isCurrent
                     ? 'bg-accent text-white'
                     : isPast
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-slate-100 text-slate-500')
+                      ? 'bg-emerald-500/100/15 text-emerald-300'
+                      : 'bg-slate-800 text-slate-400')
                 }
               >
                 {stage.replace(/_/g, ' ')}
@@ -195,12 +195,12 @@ export default function ApplicationDetail({ application, nextStatuses, pipeline 
           })}
         </ol>
         {['REJECTED', 'WITHDRAWN', 'NO_RESPONSE', 'ON_HOLD'].includes(status) ? (
-          <p className="mt-3 text-sm text-slate-600">This application is currently {status.replace(/_/g, ' ').toLowerCase()}.</p>
+          <p className="mt-3 text-sm text-slate-400">This application is currently {status.replace(/_/g, ' ').toLowerCase()}.</p>
         ) : null}
 
         <h3 className="mt-6 text-sm font-medium text-ink">Allowed next steps</h3>
         {available.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-400">
             No further transitions are available from this stage. Reload the page if the status changed elsewhere.
           </p>
         ) : (
@@ -221,16 +221,16 @@ export default function ApplicationDetail({ application, nextStatuses, pipeline 
             ))}
           </div>
         )}
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-slate-400">
           The pipeline is enforced server-side: CLIENT_SUBMITTED can only be reached from SHORTLISTED, and only after the
           candidate has been contacted and has confirmed interest.
         </p>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Internal notes</h2>
-        <p className="mt-1 text-xs text-slate-500">Owner-only. Never shown to candidates or clients.</p>
-        <label className="mt-4 block text-sm font-medium text-slate-700" htmlFor="recruiterNotes">
+        <p className="mt-1 text-xs text-slate-400">Owner-only. Never shown to candidates or clients.</p>
+        <label className="mt-4 block text-sm font-medium text-slate-300" htmlFor="recruiterNotes">
           Recruiter notes
         </label>
         <textarea
@@ -239,9 +239,9 @@ export default function ApplicationDetail({ application, nextStatuses, pipeline 
           maxLength={4000}
           value={recruiterNotes}
           onChange={(e) => setRecruiterNotes(e.target.value)}
-          className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
+          className="mt-2 w-full rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
         />
-        <label className="mt-4 block text-sm font-medium text-slate-700" htmlFor="screeningNotes">
+        <label className="mt-4 block text-sm font-medium text-slate-300" htmlFor="screeningNotes">
           Screening notes
         </label>
         <textarea
@@ -250,7 +250,7 @@ export default function ApplicationDetail({ application, nextStatuses, pipeline 
           maxLength={4000}
           value={screeningNotes}
           onChange={(e) => setScreeningNotes(e.target.value)}
-          className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
+          className="mt-2 w-full rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
         />
         <div className="mt-3">
           <button

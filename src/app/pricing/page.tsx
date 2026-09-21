@@ -27,13 +27,13 @@ export default function Page(): React.ReactElement {
     >
       <div className="grid gap-6 md:grid-cols-2">
         {plans.map((plan) => (
-          <section key={plan.id} className="rounded-xl border border-line bg-white p-6">
+          <section key={plan.id} className="rounded-xl border border-line bg-navy-surface p-6">
             <h2 className="text-xl font-semibold text-ink">{plan.name}</h2>
-            <p className="mt-1 text-sm text-slate-600">{plan.summary}</p>
+            <p className="mt-1 text-sm text-slate-400">{plan.summary}</p>
             <p className="mt-4 text-3xl font-semibold tracking-tight text-ink">
               {formatPlanPrice(plan.price)}
             </p>
-            <ul className="mt-4 list-disc space-y-1.5 pl-5 text-sm text-slate-700">
+            <ul className="mt-4 list-disc space-y-1.5 pl-5 text-sm text-slate-300">
               {plan.features.map((feature) => (
                 <li key={feature}>{feature}</li>
               ))}
@@ -56,7 +56,7 @@ export default function Page(): React.ReactElement {
                   </Link>
                 )
               ) : (
-                <span className="inline-block rounded-md border border-line px-4 py-2 text-sm font-medium text-slate-600">
+                <span className="inline-block rounded-md border border-line px-4 py-2 text-sm font-medium text-slate-400">
                   Free — no account needed
                 </span>
               )}
@@ -89,7 +89,7 @@ export default function Page(): React.ReactElement {
             </>
           )}
         </p>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-400">
           When billing is enabled, subscriptions will appear in your portal with plan status, billing period and
           invoices — created only from real payment records.
         </p>

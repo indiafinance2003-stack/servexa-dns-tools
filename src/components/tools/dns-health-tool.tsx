@@ -10,20 +10,20 @@ import { buildSoaFields } from '@/lib/client/dns-records';
 const SEVERITY_ORDER: Array<Finding['severity']> = ['error', 'warning', 'info', 'pass'];
 
 const SEVERITY_STYLES: Record<Finding['severity'], string> = {
-  pass: 'bg-emerald-50 text-emerald-900 ring-emerald-200',
-  info: 'bg-slate-100 text-slate-700 ring-slate-300',
-  warning: 'bg-amber-50 text-amber-900 ring-amber-300',
-  error: 'bg-red-50 text-red-900 ring-red-300',
+  pass: 'bg-emerald-500/10 text-emerald-300 ring-emerald-500/40',
+  info: 'bg-slate-800 text-slate-300 ring-slate-300',
+  warning: 'bg-amber-500/10 text-amber-300 ring-amber-500/40',
+  error: 'bg-red-500/10 text-red-300 ring-red-500/40',
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  success: 'bg-emerald-50 text-emerald-900',
-  empty: 'bg-amber-50 text-amber-900',
-  nxdomain: 'bg-red-50 text-red-900',
-  servfail: 'bg-red-50 text-red-900',
-  refused: 'bg-red-50 text-red-900',
-  timeout: 'bg-red-50 text-red-900',
-  error: 'bg-red-50 text-red-900',
+  success: 'bg-emerald-500/10 text-emerald-300',
+  empty: 'bg-amber-500/10 text-amber-300',
+  nxdomain: 'bg-red-500/10 text-red-300',
+  servfail: 'bg-red-500/10 text-red-300',
+  refused: 'bg-red-500/10 text-red-300',
+  timeout: 'bg-red-500/10 text-red-300',
+  error: 'bg-red-500/10 text-red-300',
 };
 
 function overallVerdict(findings: Finding[]): { label: string; className: string } | null {
@@ -31,13 +31,13 @@ function overallVerdict(findings: Finding[]): { label: string; className: string
     if (findings.some((finding) => finding.severity === severity)) {
       switch (severity) {
         case 'error':
-          return { label: 'Error severity findings present', className: 'bg-red-50 text-red-900 ring-red-300' };
+          return { label: 'Error severity findings present', className: 'bg-red-500/10 text-red-300 ring-red-500/40' };
         case 'warning':
-          return { label: 'Warnings found', className: 'bg-amber-50 text-amber-900 ring-amber-300' };
+          return { label: 'Warnings found', className: 'bg-amber-500/10 text-amber-300 ring-amber-500/40' };
         case 'info':
-          return { label: 'Info findings found', className: 'bg-slate-100 text-slate-700 ring-slate-300' };
+          return { label: 'Info findings found', className: 'bg-slate-800 text-slate-300 ring-slate-300' };
         case 'pass':
-          return { label: 'All checks passed', className: 'bg-emerald-50 text-emerald-900 ring-emerald-200' };
+          return { label: 'All checks passed', className: 'bg-emerald-500/10 text-emerald-300 ring-emerald-500/40' };
       }
     }
   }
@@ -75,7 +75,7 @@ export function DnsHealthTool({ initialDomain }: { initialDomain?: string }): Re
 
   return (
     <div className="space-y-6">
-      <form onSubmit={onSubmit} className="flex flex-col gap-3 rounded-xl border border-line bg-white p-4 sm:flex-row">
+      <form onSubmit={onSubmit} className="flex flex-col gap-3 rounded-xl border border-line bg-navy-surface p-4 sm:flex-row">
         <label className="block flex-1">
           <span className="mb-1 block text-sm font-medium text-ink">Domain</span>
           <input
@@ -99,7 +99,7 @@ export function DnsHealthTool({ initialDomain }: { initialDomain?: string }): Re
           </button>
         </div>
       </form>
-      {error ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
+      {error ? <p className="rounded-md bg-red-500/10 p-3 text-sm text-red-300">{error}</p> : null}
       {result ? <DnsHealthResult result={result} verdict={verdict} /> : null}
     </div>
   );
@@ -171,7 +171,7 @@ function DnsHealthResult({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-semibold text-ink">Findings for {result.domain}</h2>
           {verdict ? (
@@ -189,7 +189,7 @@ function DnsHealthResult({
               {item.count} {item.severity}
             </span>
           ))}
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+          <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-300">
             {result.findings.length} total
           </span>
         </div>
@@ -198,7 +198,7 @@ function DnsHealthResult({
         </div>
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-lg font-semibold text-ink">DNS Records</h2>
         <p className="mt-1 text-sm text-muted">Published DNS records observed by the resolver.</p>
         <div className="mt-4 space-y-4">
@@ -209,40 +209,31 @@ function DnsHealthResult({
           )}
           {result.records.soa ? <SoaCard soa={result.records.soa} domain={result.domain} /> : null}
         </div>
-        <p className="mt-4 text-xs text-slate-500">
+        <p className="mt-4 text-xs text-slate-400">
           TTLs are shown only when the resolver returns them; “—” means the TTL was not provided for that record.
         </p>
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-lg font-semibold text-ink">DNSSEC</h2>
-        <p className="mt-2 rounded-lg bg-paper p-3 text-sm text-slate-700">
+        <p className="mt-2 rounded-lg bg-paper p-3 text-sm text-slate-300">
           {DNSSEC_LABELS[result.dnssec.determination] ?? result.dnssec.determination}
         </p>
-        <p className="mt-2 text-xs text-slate-500">
-          Ravelyth reports whether DNSSEC-related records (DS, DNSKEY, RRSIG) are observed. It does not perform
-          cryptographic chain-of-trust validation.
+        <p className="mt-2 text-xs text-slate-400">
+          Ravelyth does not query DNSSEC-related records (DS, DNSKEY, RRSIG) and performs no cryptographic
+          chain-of-trust validation, so it reports no DNSSEC state rather than implying a signed or unsigned zone.
         </p>
-        {(result.dnssec.dsRecords.length > 0 || result.dnssec.dnskeyRecords.length > 0) && (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <RecordGroup label="DS records observed" items={result.dnssec.dsRecords.map((r) => JSON.stringify(r))} />
-            <RecordGroup
-              label="DNSKEY records observed"
-              items={result.dnssec.dnskeyRecords.map((r) => JSON.stringify(r))}
-            />
-          </div>
-        )}
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-lg font-semibold text-ink">Nameservers</h2>
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <thead>
               <tr className="border-b border-line">
-                <th className="px-3 py-2 font-medium text-slate-500">Hostname</th>
-                <th className="px-3 py-2 font-medium text-slate-500">Addresses</th>
-                <th className="px-3 py-2 font-medium text-slate-500">Status</th>
+                <th className="px-3 py-2 font-medium text-slate-400">Hostname</th>
+                <th className="px-3 py-2 font-medium text-slate-400">Addresses</th>
+                <th className="px-3 py-2 font-medium text-slate-400">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -254,14 +245,14 @@ function DnsHealthResult({
                 </tr>
               ) : (
                 result.nameservers.nameservers.map((server) => (
-                  <tr key={server.hostname} className="border-b border-slate-100">
+                  <tr key={server.hostname} className="border-b border-slate-800">
                     <td className="px-3 py-2 font-mono text-xs text-ink">{server.hostname}</td>
                     <td className="px-3 py-2 font-mono text-xs text-ink">
                       {server.addresses.length > 0 ? server.addresses.join(', ') : '—'}
                     </td>
                     <td className="px-3 py-2">
                       <span
-                        className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[server.lookupStatus] || 'bg-slate-100 text-slate-700'}`}
+                        className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[server.lookupStatus] || 'bg-slate-800 text-slate-300'}`}
                       >
                         {server.lookupStatus}
                       </span>
@@ -274,7 +265,7 @@ function DnsHealthResult({
         </div>
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-lg font-semibold text-ink">SPF &amp; DMARC</h2>
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div className="rounded-lg border border-line bg-paper p-4">
@@ -282,7 +273,7 @@ function DnsHealthResult({
             {result.spf.records.length === 0 ? (
               <p className="mt-2 text-sm text-muted">No SPF records were observed.</p>
             ) : (
-              <pre className="mt-2 overflow-x-auto rounded-md bg-white p-3 font-mono text-xs text-ink">
+              <pre className="mt-2 overflow-x-auto rounded-md bg-navy-surface p-3 font-mono text-xs text-ink">
                 {result.spf.records.join('\n')}
               </pre>
             )}
@@ -292,7 +283,7 @@ function DnsHealthResult({
             {result.dmarc.records.length === 0 ? (
               <p className="mt-2 text-sm text-muted">No DMARC records were observed.</p>
             ) : (
-              <pre className="mt-2 overflow-x-auto rounded-md bg-white p-3 font-mono text-xs text-ink">
+              <pre className="mt-2 overflow-x-auto rounded-md bg-navy-surface p-3 font-mono text-xs text-ink">
                 {result.dmarc.records.join('\n')}
               </pre>
             )}
@@ -300,9 +291,9 @@ function DnsHealthResult({
         </div>
       </section>
 
-      <details className="rounded-xl border border-line bg-white p-6">
+      <details className="rounded-xl border border-line bg-navy-surface p-6">
         <summary className="cursor-pointer font-semibold text-ink">Technical details</summary>
-        <pre className="mt-3 max-h-[480px] overflow-auto rounded-lg bg-slate-50 p-4 font-mono text-xs text-ink">
+        <pre className="mt-3 max-h-[480px] overflow-auto rounded-lg bg-slate-800 p-4 font-mono text-xs text-ink">
           {JSON.stringify(result, null, 2)}
         </pre>
       </details>
@@ -312,30 +303,9 @@ function DnsHealthResult({
 const DNSSEC_LABELS: Record<string, string> = {
   appears_enabled: 'DNSSEC-related records were observed (DS/DNSKEY/RRSIG present).',
   appears_absent: 'No DNSSEC-related records were observed.',
-  could_not_be_determined: 'DNSSEC status could not be determined from this resolver.',
+  could_not_be_determined: 'DNSSEC status could not be determined by this tool.',
   possible_validation_failure: 'Records exist but validation signals look inconsistent.',
 };
-
-function RecordGroup({ label, items }: { label: string; items: string[] }): React.ReactElement {
-  return (
-    <div className="rounded-lg border border-line bg-paper p-4">
-      <dt className="text-sm font-medium text-ink">{label}</dt>
-      <dd className="mt-2">
-        {items.length === 0 ? (
-          <span className="text-sm text-muted">—</span>
-        ) : (
-          <ul className="space-y-1">
-            {items.map((item, index) => (
-              <li key={`${label}-${index}`} className="break-all font-mono text-xs text-ink">
-                {item}
-              </li>
-            ))}
-          </ul>
-        )}
-      </dd>
-    </div>
-  );
-}
 
 
 const TTL_UNAVAILABLE_LABEL = '—';
@@ -371,7 +341,7 @@ function SoaCard({ soa, domain }: { soa: unknown; domain: string }): React.React
       <dl className="mt-3 grid gap-x-8 gap-y-2 sm:grid-cols-2">
         {buildSoaFields(soa).map((field) => (
           <div key={field.label} className="flex justify-between gap-4 text-sm">
-            <dt className="text-slate-600">{field.label}</dt>
+            <dt className="text-slate-400">{field.label}</dt>
             <dd className="break-all font-mono text-xs text-ink">{field.value}</dd>
           </div>
         ))}
@@ -386,17 +356,17 @@ function RecordTable({ rows }: { rows: RecordRowInput[] }): React.ReactElement {
       <table className="min-w-full text-left text-sm">
         <thead>
           <tr className="border-b border-line">
-            <th scope="col" className="px-3 py-2 font-medium text-slate-500">Name</th>
-            <th scope="col" className="px-3 py-2 font-medium text-slate-500">Value</th>
-            <th scope="col" className="px-3 py-2 font-medium text-slate-500">TTL</th>
+            <th scope="col" className="px-3 py-2 font-medium text-slate-400">Name</th>
+            <th scope="col" className="px-3 py-2 font-medium text-slate-400">Value</th>
+            <th scope="col" className="px-3 py-2 font-medium text-slate-400">TTL</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row, index) => (
-            <tr key={`${row.value}-${index}`} className="border-b border-slate-100">
+            <tr key={`${row.value}-${index}`} className="border-b border-slate-800">
               <td className="px-3 py-2 font-mono text-xs text-ink">{row.name}</td>
               <td className="break-all px-3 py-2 font-mono text-xs text-ink">{row.value}</td>
-              <td className="whitespace-nowrap px-3 py-2 font-mono text-xs text-slate-600">{row.ttl}</td>
+              <td className="whitespace-nowrap px-3 py-2 font-mono text-xs text-slate-400">{row.ttl}</td>
             </tr>
           ))}
         </tbody>

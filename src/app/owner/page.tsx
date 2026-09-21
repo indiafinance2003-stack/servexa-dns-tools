@@ -16,6 +16,16 @@ export default function OwnerOverviewPage() {
       title: 'Talent',
       body: 'Recruitment pipeline: jobs, candidates, applications, interviews, placements, and fees.',
     },
+    {
+      href: '/owner/feedback',
+      title: 'Feedback',
+      body: 'Customer feedback inbox: ratings, categories and triage status.',
+    },
+    {
+      href: '/owner/contact',
+      title: 'Contact',
+      body: 'Public contact form submissions with spam review and triage.',
+    },
   ];
 
   return (
@@ -29,10 +39,10 @@ export default function OwnerOverviewPage() {
           <Link
             key={area.href}
             href={area.href}
-            className="flex flex-col rounded-xl border border-line bg-white p-5 transition hover:border-accent hover:shadow-sm"
+            className="flex flex-col rounded-xl border border-line bg-navy-surface p-5 transition hover:border-accent hover:shadow-sm"
           >
             <h2 className="text-base font-semibold text-ink">{area.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">{area.body}</p>
+            <p className="mt-2 text-sm leading-relaxed text-slate-400">{area.body}</p>
           </Link>
         ))}
       </div>

@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       'Free DNS and email diagnostic tools for DNS lookup, SPF, DKIM, DMARC, nameservers, DNS health, PTR records and email header analysis.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#f8fafc',
-    theme_color: '#0f766e',
+    background_color: '#0b1220',
+    theme_color: '#0b1220',
     icons: [
       {
         src: '/icon.svg',

@@ -93,7 +93,7 @@ export async function listAllTickets(options: ListOwnerTicketsOptions = {}): Pro
   const limit = Math.min(Math.max(options.limit ?? 100, 1), 200);
   const filters = [];
   if (options.status && isSupportStatus(options.status)) filters.push(eq(supportTickets.status, options.status));
-  if (options.origin === 'managed_support' || options.origin === 'public_request') {
+  if (options.origin === 'managed_support') {
     filters.push(eq(supportTickets.origin, options.origin));
   }
   if (options.priority === 'low' || options.priority === 'normal' || options.priority === 'high') {

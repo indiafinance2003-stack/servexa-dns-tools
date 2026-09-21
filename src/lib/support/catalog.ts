@@ -81,7 +81,6 @@ export const SUPPORT_RESPONSIBILITY_LABELS: Record<SupportResponsibility, string
 
 export const SUPPORT_ORIGIN_LABELS: Record<SupportOrigin, string> = {
   managed_support: 'Managed Support',
-  public_request: 'Support request (no Managed Support plan)',
 };
 
 /**

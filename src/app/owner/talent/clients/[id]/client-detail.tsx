@@ -71,19 +71,19 @@ const STATUSES = [
 ] as const;
 
 const statusClasses: Record<string, string> = {
-  PROSPECT: 'bg-slate-100 text-slate-700',
+  PROSPECT: 'bg-slate-800 text-slate-300',
   CONTACTED: 'bg-blue-100 text-blue-700',
-  REPLIED: 'bg-emerald-100 text-emerald-700',
-  CALL_SCHEDULED: 'bg-amber-100 text-amber-700',
+  REPLIED: 'bg-emerald-500/100/15 text-emerald-300',
+  CALL_SCHEDULED: 'bg-amber-500/100/15 text-amber-300',
   REQUIREMENT_RECEIVED: 'bg-violet-100 text-violet-700',
   ACTIVE_CLIENT: 'bg-green-100 text-green-700',
-  FUTURE: 'bg-slate-200 text-slate-600',
-  NOT_INTERESTED: 'bg-red-100 text-red-700',
+  FUTURE: 'bg-slate-700 text-slate-400',
+  NOT_INTERESTED: 'bg-red-500/100/15 text-red-300',
 };
 
-const input = 'w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none';
-const label = 'block text-sm font-medium text-slate-700';
-const dt = 'text-xs font-medium uppercase tracking-wide text-slate-500';
+const input = 'w-full rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none';
+const label = 'block text-sm font-medium text-slate-300';
+const dt = 'text-xs font-medium uppercase tracking-wide text-slate-400';
 const dd = 'mt-1 text-sm text-ink';
 
 function formatINR(minor: number | null): string {
@@ -231,8 +231,8 @@ export function OwnerClientDetailClient({ clientId }: { clientId: string }) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-line bg-white p-6">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
+        <div className="flex items-center gap-2 text-sm text-slate-400">
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
           Loading client...
         </div>
@@ -242,7 +242,7 @@ export function OwnerClientDetailClient({ clientId }: { clientId: string }) {
 
   if (!client) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+      <div className="rounded-xl border border-red-200 bg-red-500/10 p-4 text-sm text-red-300">
         {error ?? 'Client not found.'}
       </div>
     );
@@ -258,23 +258,23 @@ export function OwnerClientDetailClient({ clientId }: { clientId: string }) {
 
   return (
     <div className="space-y-6">
-      {error ? <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</div> : null}
+      {error ? <div className="rounded-md border border-red-200 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
+      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-500/10 p-3 text-sm text-emerald-300">{notice}</div> : null}
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-xl font-semibold text-ink">{client.companyName}</h2>
-            <p className="mt-1 text-xs text-slate-500">Added {formatDate(client.createdAt)}</p>
+            <p className="mt-1 text-xs text-slate-400">Added {formatDate(client.createdAt)}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[client.status] ?? 'bg-slate-100 text-slate-700')}>
+            <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[client.status] ?? 'bg-slate-800 text-slate-300')}>
               {client.status.replace(/_/g, ' ')}
             </span>
             <button
               type="button"
               onClick={() => setEditOpen((prev) => !prev)}
-              className="inline-flex items-center rounded-md border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-slate-50"
+              className="inline-flex items-center rounded-md border border-line bg-navy-surface px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-slate-800"
             >
               {editOpen ? 'Close editor' : 'Edit client'}
             </button>
@@ -339,7 +339,7 @@ export function OwnerClientDetailClient({ clientId }: { clientId: string }) {
               <button type="button" onClick={() => void save()} disabled={saving} className="inline-flex items-center rounded-md bg-accent px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-accent/90 disabled:opacity-50">
                 {saving ? 'Saving...' : 'Save changes'}
               </button>
-              <button type="button" onClick={() => setEditOpen(false)} className="inline-flex items-center rounded-md border border-line bg-white px-4 py-2 text-sm font-medium text-ink transition hover:bg-slate-50">
+              <button type="button" onClick={() => setEditOpen(false)} className="inline-flex items-center rounded-md border border-line bg-navy-surface px-4 py-2 text-sm font-medium text-ink transition hover:bg-slate-800">
                 Cancel
               </button>
             </div>
@@ -360,39 +360,39 @@ export function OwnerClientDetailClient({ clientId }: { clientId: string }) {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-line bg-white p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Requirements</p>
+        <div className="rounded-lg border border-line bg-navy-surface p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Requirements</p>
           <p className="mt-1 text-2xl font-semibold text-ink">{jobs.length}</p>
         </div>
-        <div className="rounded-lg border border-line bg-white p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Submitted</p>
+        <div className="rounded-lg border border-line bg-navy-surface p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Submitted</p>
           <p className="mt-1 text-2xl font-semibold text-ink">
             {applications.filter((app) => app.clientSubmissionDate !== null).length}
           </p>
         </div>
-        <div className="rounded-lg border border-line bg-white p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Pending fees</p>
+        <div className="rounded-lg border border-line bg-navy-surface p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Pending fees</p>
           <p className="mt-1 text-2xl font-semibold text-ink">{formatINR(pendingMinor)}</p>
         </div>
-        <div className="rounded-lg border border-line bg-white p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Paid revenue</p>
+        <div className="rounded-lg border border-line bg-navy-surface p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Paid revenue</p>
           <p className="mt-1 text-2xl font-semibold text-accent">{formatINR(paidMinor)}</p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Requirements ({jobs.length})</h2>
         {jobs.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No job requirements are linked to this client yet.</p>
+          <p className="mt-4 text-sm text-slate-400">No job requirements are linked to this client yet.</p>
         ) : (
           <ul className="mt-4 divide-y divide-line">
             {jobs.map((job) => (
               <li key={job.id} className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
                 <Link href={'/owner/talent/jobs/' + job.id} className="text-sm font-medium text-accent hover:underline">{job.title}</Link>
-                <span className="text-xs text-slate-500">{job.jobId}</span>
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700">{job.status}</span>
-                <span className="text-xs text-slate-500">{job.openings} opening{job.openings === 1 ? '' : 's'}</span>
-                {job.location ? <span className="text-xs text-slate-500">{job.location}</span> : null}
+                <span className="text-xs text-slate-400">{job.jobId}</span>
+                <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-xs text-slate-300">{job.status}</span>
+                <span className="text-xs text-slate-400">{job.openings} opening{job.openings === 1 ? '' : 's'}</span>
+                {job.location ? <span className="text-xs text-slate-400">{job.location}</span> : null}
                 <span className="ml-auto text-xs text-slate-400">{formatDate(job.createdAt)}</span>
               </li>
             ))}
@@ -400,19 +400,19 @@ export function OwnerClientDetailClient({ clientId }: { clientId: string }) {
         )}
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Candidate pipeline ({applications.length})</h2>
         {applications.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No candidates are linked to this client yet.</p>
+          <p className="mt-4 text-sm text-slate-400">No candidates are linked to this client yet.</p>
         ) : (
           <ul className="mt-4 divide-y divide-line">
             {applications.map((app) => (
               <li key={app.id} className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
                 <Link href={'/owner/talent/applications/' + app.id} className="text-sm font-medium text-accent hover:underline">{app.applicationId}</Link>
-                <span className="text-xs text-slate-500">{app.candidateCode}</span>
+                <span className="text-xs text-slate-400">{app.candidateCode}</span>
                 <span className="text-sm text-ink">{app.jobTitle}</span>
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700">{app.status.replace(/_/g, ' ')}</span>
-                <span className="text-xs text-slate-500">
+                <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-xs text-slate-300">{app.status.replace(/_/g, ' ')}</span>
+                <span className="text-xs text-slate-400">
                   {app.clientSubmissionDate ? 'Submitted ' + formatDate(app.clientSubmissionDate) : 'Not submitted to client'}
                 </span>
               </li>
@@ -421,17 +421,17 @@ export function OwnerClientDetailClient({ clientId }: { clientId: string }) {
         )}
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Interviews ({interviews.length})</h2>
         {interviews.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No interviews recorded for this client.</p>
+          <p className="mt-4 text-sm text-slate-400">No interviews recorded for this client.</p>
         ) : (
           <ul className="mt-4 divide-y divide-line">
             {interviews.map((row) => (
               <li key={row.id} className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
                 <span className="text-sm text-ink">{row.round}</span>
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700">{row.status.replace(/_/g, ' ')}</span>
-                <span className="text-xs text-slate-500">{formatDate(row.scheduledAt)}</span>
+                <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-xs text-slate-300">{row.status.replace(/_/g, ' ')}</span>
+                <span className="text-xs text-slate-400">{formatDate(row.scheduledAt)}</span>
                 <Link href={'/owner/talent/applications/' + row.applicationId} className="ml-auto text-xs font-medium text-accent hover:underline">
                   View application
                 </Link>
@@ -441,19 +441,19 @@ export function OwnerClientDetailClient({ clientId }: { clientId: string }) {
         )}
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Placements and fees ({placements.length})</h2>
         {placements.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No placements recorded for this client yet.</p>
+          <p className="mt-4 text-sm text-slate-400">No placements recorded for this client yet.</p>
         ) : (
           <ul className="mt-4 divide-y divide-line">
             {placements.map((row) => (
               <li key={row.id} className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
                 <Link href={'/owner/talent/applications/' + row.applicationId} className="text-sm font-medium text-accent hover:underline">View application</Link>
                 <span className="text-sm text-ink">{formatINR(row.feeAmountMinor)}</span>
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700">{row.paymentStatus.replace(/_/g, ' ')}</span>
-                <span className="text-xs text-slate-500">Joining {formatDate(row.joiningDate)}</span>
-                <span className="text-xs text-slate-500">Due {formatDate(row.paymentDueDate)}</span>
+                <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-xs text-slate-300">{row.paymentStatus.replace(/_/g, ' ')}</span>
+                <span className="text-xs text-slate-400">Joining {formatDate(row.joiningDate)}</span>
+                <span className="text-xs text-slate-400">Due {formatDate(row.paymentDueDate)}</span>
               </li>
             ))}
           </ul>

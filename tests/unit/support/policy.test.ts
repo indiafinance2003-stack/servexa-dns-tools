@@ -94,14 +94,13 @@ describe('message visibility filters', () => {
 });
 
 describe('origin policy', () => {
-  it('requires a Managed Support entitlement only for managed tickets', () => {
+  it('requires a Managed Support entitlement for every customer ticket', () => {
     expect(requiresManagedSupportEntitlement('managed_support')).toBe(true);
-    expect(requiresManagedSupportEntitlement('public_request')).toBe(false);
   });
 
-  it('accepts both customer-creatable origins and nothing else', () => {
+  it('accepts only the Managed Support origin from the customer API', () => {
     expect(isCustomerCreatableOrigin('managed_support')).toBe(true);
-    expect(isCustomerCreatableOrigin('public_request')).toBe(true);
+    expect(isCustomerCreatableOrigin('public_request')).toBe(false);
     expect(isCustomerCreatableOrigin('internal')).toBe(false);
   });
 });

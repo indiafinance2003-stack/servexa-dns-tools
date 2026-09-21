@@ -26,9 +26,9 @@ interface CandidatesResponse {
 }
 
 const statusClasses: Record<string, string> = {
-  CONSENT_GIVEN: "bg-emerald-100 text-emerald-700",
-  CONSENT_PENDING: "bg-amber-100 text-amber-700",
-  CONSENT_DECLINED: "bg-red-100 text-red-700",
+  CONSENT_GIVEN: "bg-emerald-500/100/15 text-emerald-300",
+  CONSENT_PENDING: "bg-amber-500/100/15 text-amber-300",
+  CONSENT_DECLINED: "bg-red-500/100/15 text-red-300",
 };
 
 export function OwnerCandidatesList() {
@@ -66,17 +66,17 @@ useEffect(() => {
   }, [search]);
 
   return (
-    <div className="rounded-xl border border-line bg-white p-6">
+    <div className="rounded-xl border border-line bg-navy-surface p-6">
       <div className="flex flex-wrap gap-3">
         <input
           type="search"
           placeholder="Search name, email, phone..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-slate-400 focus:border-accent focus:outline-none w-64"
+          className="rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink placeholder:text-slate-400 focus:border-accent focus:outline-none w-64"
         />
         {loading && (
-          <div className="ml-auto flex items-center gap-2 text-sm text-slate-500">
+          <div className="ml-auto flex items-center gap-2 text-sm text-slate-400">
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
             Loading...
           </div>
@@ -84,12 +84,12 @@ useEffect(() => {
       </div>
 
       {error && (
-        <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
+        <div className="mt-4 rounded-md border border-red-200 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>
       )}
 
       {!loading && candidates.length === 0 && (
         <div className="mt-8 border border-dashed border-line py-12 text-center">
-          <p className="text-sm text-slate-500">No candidates yet. Candidates apply through public job postings.</p>
+          <p className="text-sm text-slate-400">No candidates yet. Candidates apply through public job postings.</p>
         </div>
       )}
 
@@ -100,15 +100,15 @@ useEffect(() => {
               <div className="flex flex-wrap items-center gap-3">
                 <Link href={`/owner/talent/candidates/${candidate.id}`} className="flex-1 min-w-0">
                   <p className="text-base font-semibold text-ink truncate">{candidate.fullName}</p>
-                  <p className="text-xs text-slate-500">{candidate.candidateId}</p>
+                  <p className="text-xs text-slate-400">{candidate.candidateId}</p>
                 </Link>
-                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClasses[candidate.consentStatus] ?? "bg-slate-100 text-slate-700"}`}>
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClasses[candidate.consentStatus] ?? "bg-slate-800 text-slate-300"}`}>
                   {candidate.consentStatus}
                 </span>
-                <span className="text-xs text-slate-500">{candidate.email}</span>
-                {candidate.phone && <span className="text-xs text-slate-500">{candidate.phone}</span>}
+                <span className="text-xs text-slate-400">{candidate.email}</span>
+                {candidate.phone && <span className="text-xs text-slate-400">{candidate.phone}</span>}
                 {candidate.totalExperience != null && (
-                  <span className="text-xs text-slate-500">{candidate.totalExperience}y exp</span>
+                  <span className="text-xs text-slate-400">{candidate.totalExperience}y exp</span>
                 )}
                 <div className="ml-auto flex gap-2">
                   <Link href={`/owner/talent/candidates/${candidate.id}`} className="rounded-md px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/10">

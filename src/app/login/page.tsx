@@ -21,7 +21,7 @@ export default async function LoginPage(): Promise<React.ReactElement> {
       <p className="mt-2 text-sm text-muted">
         Sign in to save DNS analyses to your account. Public tools remain available without signing in.
       </p>
-      <div className="mt-8 rounded-xl border border-line bg-white p-6">
+      <div className="mt-8 rounded-xl border border-line bg-navy-surface p-6">
         <LoginForm />
       </div>
     </div>

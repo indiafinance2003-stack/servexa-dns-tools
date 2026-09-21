@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { InfoPage, InfoSection } from '@/components/layout/info-page';
 import { SupportRequestForm } from '@/components/support/support-request-form';
 import { getSessionUser } from '@/lib/auth/session';
+import { getManagedSupportEntitlement } from '@/lib/support/entitlement';
 import { buildDiagnosticContext } from '@/lib/support/context';
 import { categoryForTool, SUPPORT_CATEGORY_LABELS } from '@/lib/support/catalog';
 import { managedSupportPlan } from '@/lib/plans/catalog';
@@ -12,7 +13,7 @@ import type { SupportCategory } from '@/lib/db/schema';
 export const metadata: Metadata = {
   title: 'Request Support',
   description:
-    'Request Ravelyth support for DNS, email, website, SSL, hosting and security problems. Requests are tracked as tickets in your account.',
+    'Request Managed Support for DNS, email, website, SSL, hosting and security problems. Requests are tracked as tickets in your account.',
   alternates: { canonical: '/support/request' },
   robots: { index: false, follow: true },
 };
@@ -57,12 +58,20 @@ export default async function SupportRequestPage({ searchParams }: PageProps): P
   const suggestedCategory: SupportCategory = categoryForTool(context?.tool ?? null);
   const plan = managedSupportPlan();
 
+  let entitled = false;
+  let statusReason: string | null = null;
+  if (user) {
+    const entitlement = await getManagedSupportEntitlement(user.id);
+    entitled = entitlement.entitled;
+    statusReason = entitlement.reason;
+  }
+
   return (
     <InfoPage
       title="Request support"
-      intro="Open a support request with Ravelyth. Every request becomes a tracked ticket in your account, with a reference number and a message history you can reply to."
+      intro="Managed Support requests are opened as tracked tickets in your account, with a reference number and a message history you can reply to."
     >
-      <InfoSection title="What Ravelyth support covers" id="coverage">
+      <InfoSection title="What Managed Support covers" id="coverage">
         <p>
           Support covers hands-on troubleshooting and configuration for the managed services below.
           Diagnostic context from the free tools can be attached automatically, which usually shortens
@@ -77,24 +86,62 @@ export default async function SupportRequestPage({ searchParams }: PageProps): P
             </li>
           ))}
         </ul>
-        <p className="text-sm text-slate-600">
-          Work outside this scope is either declined or quoted separately — it is never silently
-          assumed. See the{' '}
+        <p className="text-sm text-slate-400">
+          Every request requires the{' '}
           <Link href="/pricing" className="font-medium text-accent hover:text-accent-strong">
             Managed Support plan ({plan.name})
-          </Link>{' '}
-          for the exact boundaries.
+          </Link>
+          . Work outside this scope is either declined or quoted separately — it is never silently
+          assumed.
         </p>
       </InfoSection>
 
-      <InfoSection title="Open a request" id="request">
-        <SupportRequestForm
-          authenticated={user !== null}
-          initialContext={context}
-          initialCategory={suggestedCategory}
-          categories={Object.entries(SUPPORT_CATEGORY_LABELS).map(([value, label]) => ({ value, label }))}
-        />
-      </InfoSection>
+      {user === null ? (
+        <InfoSection title="Open a request" id="request">
+          <p className="rounded-lg bg-sky-500/10 p-3 text-sm text-sky-300">
+            Requests are tracked in your Ravelyth account.{' '}
+            <Link href="/login" className="font-medium underline hover:text-sky-200">Sign in</Link>{' '}
+            or{' '}
+            <Link href="/register" className="font-medium underline hover:text-sky-200">create an account</Link>{' '}
+            to continue. All diagnostic tools are free and open to everyone.
+          </p>
+        </InfoSection>
+      ) : !entitled ? (
+        <InfoSection title="Managed Support is required to submit a request" id="request">
+          <p>
+            Support tickets are part of the paid Managed Support plan. Your account does not currently
+            have an active plan{statusReason ? ` — ${statusReason}` : ''}.
+          </p>
+          <p className="text-sm text-slate-400">
+            The free diagnostic tools remain available to you, and the{' '}
+            <Link href="/docs" className="font-medium text-accent hover:text-accent-strong">Knowledge Base</Link>{' '}
+            already covers the most common DNS and email problems.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2 text-sm">
+            <Link
+              href="/pricing"
+              className="rounded-md bg-accent px-4 py-2 font-medium text-white hover:bg-accent-strong"
+            >
+              See the Managed Support plan
+            </Link>
+            <Link
+              href="/services"
+              className="rounded-md border border-line px-4 py-2 text-slate-300 hover:border-accent hover:text-accent"
+            >
+              What support covers
+            </Link>
+          </div>
+        </InfoSection>
+      ) : (
+        <InfoSection title="Open a request" id="request">
+          <SupportRequestForm
+            authenticated
+            initialContext={context}
+            initialCategory={suggestedCategory}
+            categories={Object.entries(SUPPORT_CATEGORY_LABELS).map(([value, label]) => ({ value, label }))}
+          />
+        </InfoSection>
+      )}
 
       <InfoSection title="Before you submit" id="prepare">
         <ul className="list-disc space-y-1.5 pl-5">
@@ -102,7 +149,7 @@ export default async function SupportRequestPage({ searchParams }: PageProps): P
           <li>Note exactly what you expected and what happens instead, including error messages.</li>
           <li>Note when the problem started and any recent changes (DNS edits, hosting moves, certificate renewals).</li>
         </ul>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-400">
           Not sure what is wrong? The{' '}
           <Link href="/docs" className="font-medium text-accent hover:text-accent-strong">
             Knowledge Base
@@ -115,7 +162,7 @@ export default async function SupportRequestPage({ searchParams }: PageProps): P
         <ul className="list-disc space-y-1.5 pl-5">
           <li>Your request receives a ticket reference (RT-YYYY-XXXXXXXX) immediately.</li>
           <li>Replies appear in your account under Support, with an in-app notification — Ravelyth does not send email notifications until an email provider is configured.</li>
-          <li>There is no guaranteed response time for requests without an active Managed Support plan; Managed Support tickets are worked as prioritized queue items.</li>
+          <li>Managed Support tickets are worked as prioritized queue items with no separately-published guarantee.</li>
         </ul>
       </InfoSection>
     </InfoPage>

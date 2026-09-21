@@ -4,14 +4,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        ink: '#0f172a',
-        muted: '#475569',
-        line: '#e2e8f0',
-        accent: '#0f766e',
-        'accent-strong': '#115e59',
-        'accent-soft': '#14b8a6',
-        'accent-tint': '#dcf6f2',
-        paper: '#f8fafc',
+        ink: '#e2e8f0',
+        muted: '#94a3b8',
+        line: '#1e293b',
+        'navy-surface': '#111827',
+        accent: '#2563eb',
+        'accent-strong': '#1d4ed8',
+        'accent-soft': '#38bdf8',
+        'accent-tint': '#16294d',
+        paper: '#0b1220',
       },
       fontFamily: {
         sans: [

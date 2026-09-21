@@ -11,8 +11,8 @@ interface ClientOption {
 const EMPLOYMENT_TYPES = ['full_time', 'contract', 'contract_to_hire', 'internship', 'part_time'] as const;
 const WORK_MODES = ['onsite', 'hybrid', 'remote'] as const;
 
-const input = 'w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-slate-400 focus:border-accent focus:outline-none';
-const label = 'block text-sm font-medium text-slate-700';
+const input = 'w-full rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink placeholder:text-slate-400 focus:border-accent focus:outline-none';
+const label = 'block text-sm font-medium text-slate-300';
 
 const empty = {
   title: '',
@@ -99,8 +99,8 @@ export function OwnerJobCreateForm() {
   }
 
   return (
-    <div className="rounded-xl border border-line bg-white p-6">
-      {error ? <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
+    <div className="rounded-xl border border-line bg-navy-surface p-6">
+      {error ? <div className="mb-4 rounded-md border border-red-200 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="sm:col-span-2">
@@ -117,7 +117,7 @@ export function OwnerJobCreateForm() {
         <div className="sm:col-span-2 lg:col-span-3">
           <label className={label} htmlFor="job-description">Description *</label>
           <textarea id="job-description" rows={8} maxLength={20000} className={input + ' mt-2'} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-          <p className="mt-1 text-xs text-slate-500">The description is shown on the public job page once the job is published.</p>
+          <p className="mt-1 text-xs text-slate-400">The description is shown on the public job page once the job is published.</p>
         </div>
         <div>
           <label className={label} htmlFor="job-employment">Employment type</label>
@@ -156,7 +156,7 @@ export function OwnerJobCreateForm() {
           <input id="job-salary-max" type="number" min={0} className={input + ' mt-2'} value={form.salaryMax} onChange={(e) => setForm({ ...form, salaryMax: e.target.value })} />
         </div>
         <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
             <input type="checkbox" checked={form.salaryPublic} onChange={(e) => setForm({ ...form, salaryPublic: e.target.checked })} className="h-4 w-4 rounded border-line text-accent" />
             Show salary publicly
           </label>
@@ -187,7 +187,7 @@ export function OwnerJobCreateForm() {
         <button type="button" onClick={() => void submit()} disabled={saving} className="inline-flex items-center rounded-md bg-accent px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-accent/90 disabled:opacity-50">
           {saving ? 'Creating...' : 'Create draft job'}
         </button>
-        <button type="button" onClick={() => setForm(empty)} className="inline-flex items-center rounded-md border border-line bg-white px-4 py-2 text-sm font-medium text-ink transition hover:bg-slate-50">
+        <button type="button" onClick={() => setForm(empty)} className="inline-flex items-center rounded-md border border-line bg-navy-surface px-4 py-2 text-sm font-medium text-ink transition hover:bg-slate-800">
           Reset
         </button>
       </div>

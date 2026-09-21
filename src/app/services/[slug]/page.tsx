@@ -52,7 +52,7 @@ export default async function ServicePage({ params }: PageProps): Promise<React.
             <li key={item}>{item}</li>
           ))}
         </ul>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-400">
           Work beyond this scope may be possible as a separately quoted technical service — ask through the
           support request form and we will say clearly whether it is something we can do.
         </p>
@@ -64,7 +64,7 @@ export default async function ServicePage({ params }: PageProps): Promise<React.
             <li key={item}>{item}</li>
           ))}
         </ul>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-400">
           You can run the free diagnostic tools below first and attach a summary of the findings to your request —
           it usually shortens the investigation.
         </p>
@@ -121,7 +121,7 @@ export default async function ServicePage({ params }: PageProps): Promise<React.
             </>
           )}
         </p>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-400">
           Need this specific problem looked at first?{' '}
           <Link href="/support/request" className="font-medium text-accent hover:text-accent-strong">
             Send a support request

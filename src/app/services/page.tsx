@@ -28,7 +28,7 @@ export default function Page(): React.ReactElement {
                   {service.title}
                 </Link>
               </h3>
-              <p className="mt-1 text-sm text-slate-600">{service.summary}</p>
+              <p className="mt-1 text-sm text-slate-400">{service.summary}</p>
             </div>
           ))}
         </div>

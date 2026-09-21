@@ -7,7 +7,7 @@ import { getSessionUser, type AuthenticatedUser } from '@/lib/auth/session';
 const siteUrl = process.env.APP_URL || 'https://ravelyth.in';
 
 export const viewport: Viewport = {
-  themeColor: '#0f766e',
+  themeColor: '#0b1220',
 };
 
 export const metadata: Metadata = {

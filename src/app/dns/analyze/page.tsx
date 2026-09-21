@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { ToolPage } from '@/components/layout/tool-page';
-import { DomainAnalyzeTool } from '@/components/tools/domain-analyze-tool';
+import { DnsHealthTool } from '@/components/tools/dns-health-tool';
 import { parseToolSearchParams } from '@/lib/client/tool-params';
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export default async function Page({
       title="DNS Health"
       description="Run a structured inspection of published DNS data. Findings are labeled Pass, Info, Warning, or Error based on evidence from this resolver. No unexplained score is assigned."
     >
-      <DomainAnalyzeTool endpoint="/api/dns/analyze" initialDomain={params.domain} />
+      <DnsHealthTool initialDomain={params.domain} />
     </ToolPage>
   );
 }

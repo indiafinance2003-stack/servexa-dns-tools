@@ -41,16 +41,16 @@ const PAYMENT_STATUSES = ['PENDING', 'INVOICED', 'PARTIALLY_PAID', 'PAID', 'OVER
 const FEE_TYPES = ['percentage', 'fixed', 'hybrid'] as const;
 
 const statusClasses: Record<string, string> = {
-  PENDING: 'bg-amber-100 text-amber-700',
+  PENDING: 'bg-amber-500/100/15 text-amber-300',
   INVOICED: 'bg-blue-100 text-blue-700',
   PARTIALLY_PAID: 'bg-indigo-100 text-indigo-700',
-  PAID: 'bg-emerald-100 text-emerald-700',
-  OVERDUE: 'bg-red-100 text-red-700',
-  WAIVED: 'bg-slate-100 text-slate-700',
+  PAID: 'bg-emerald-500/100/15 text-emerald-300',
+  OVERDUE: 'bg-red-500/100/15 text-red-300',
+  WAIVED: 'bg-slate-800 text-slate-300',
 };
 
-const input = 'w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none';
-const label = 'block text-sm font-medium text-slate-700';
+const input = 'w-full rounded-md border border-line bg-navy-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none';
+const label = 'block text-sm font-medium text-slate-300';
 
 /** Money is stored in integer paise and only ever formatted for display. */
 function formatINR(minor: number | null): string {
@@ -206,27 +206,27 @@ export function OwnerPlacementsList() {
 
   return (
     <div className="space-y-6">
-      {error ? <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</div> : null}
+      {error ? <div className="rounded-md border border-red-200 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
+      {notice ? <div className="rounded-md border border-emerald-200 bg-emerald-500/10 p-3 text-sm text-emerald-300">{notice}</div> : null}
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border border-line bg-white p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Placements</p>
+        <div className="rounded-lg border border-line bg-navy-surface p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Placements</p>
           <p className="mt-1 text-2xl font-semibold text-ink">{placements.length}</p>
         </div>
-        <div className="rounded-lg border border-line bg-white p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Pending fees</p>
+        <div className="rounded-lg border border-line bg-navy-surface p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Pending fees</p>
           <p className="mt-1 text-2xl font-semibold text-ink">{formatINR(pendingMinor)}</p>
         </div>
-        <div className="rounded-lg border border-line bg-white p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Paid revenue</p>
+        <div className="rounded-lg border border-line bg-navy-surface p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Paid revenue</p>
           <p className="mt-1 text-2xl font-semibold text-accent">{formatINR(paidMinor)}</p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <h2 className="text-base font-semibold text-ink">Record a placement</h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-slate-400">
           The fee is calculated server-side from the annual CTC and agreed percentage, or from a fixed fee. Recording a
           placement never implies a payment has been received.
         </p>
@@ -286,11 +286,11 @@ export function OwnerPlacementsList() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-base font-semibold text-ink">Placements ({placements.length})</h2>
           {loading ? (
-            <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="flex items-center gap-2 text-sm text-slate-400">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
               Loading...
             </div>
@@ -299,7 +299,7 @@ export function OwnerPlacementsList() {
 
         {!loading && placements.length === 0 ? (
           <div className="mt-6 border border-dashed border-line py-12 text-center">
-            <p className="text-sm text-slate-500">No placements recorded yet.</p>
+            <p className="text-sm text-slate-400">No placements recorded yet.</p>
           </div>
         ) : null}
 
@@ -310,7 +310,7 @@ export function OwnerPlacementsList() {
               <div key={row.id} className="rounded-lg border border-line p-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-sm font-semibold text-ink">{row.feeAmountMinor !== null ? formatINR(row.feeAmountMinor) : 'Fee not calculated'}</span>
-                  <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[row.paymentStatus] ?? 'bg-slate-100 text-slate-700')}>
+                  <span className={'rounded-full px-2.5 py-0.5 text-xs font-medium ' + (statusClasses[row.paymentStatus] ?? 'bg-slate-800 text-slate-300')}>
                     {row.paymentStatus.replace(/_/g, ' ')}
                   </span>
                   {app ? (
@@ -321,7 +321,7 @@ export function OwnerPlacementsList() {
                     <span className="text-xs text-slate-400">Application {row.applicationId}</span>
                   )}
                 </div>
-                <dl className="mt-3 grid gap-3 text-xs text-slate-500 sm:grid-cols-3 lg:grid-cols-5">
+                <dl className="mt-3 grid gap-3 text-xs text-slate-400 sm:grid-cols-3 lg:grid-cols-5">
                   <div><dt>Client</dt><dd className="mt-0.5">{row.clientId ? clientById.get(row.clientId) ?? 'Unknown client' : 'Not linked'}</dd></div>
                   <div><dt>Annual CTC</dt><dd className="mt-0.5">{formatINR(row.annualCtcMinor)}</dd></div>
                   <div><dt>Fee type</dt><dd className="mt-0.5">{row.feeType}</dd></div>
@@ -333,7 +333,7 @@ export function OwnerPlacementsList() {
                   <div><dt>Replacement period</dt><dd className="mt-0.5">{row.replacementPeriodDays !== null ? row.replacementPeriodDays + ' days' : 'Not set'}</dd></div>
                   <div><dt>Replacement until</dt><dd className="mt-0.5">{formatDate(row.replacementUntil)}</dd></div>
                 </dl>
-                {row.notes ? <p className="mt-2 text-xs text-slate-600">{row.notes}</p> : null}
+                {row.notes ? <p className="mt-2 text-xs text-slate-400">{row.notes}</p> : null}
                 <PaymentControl row={row} busy={pending === row.id} onSave={updatePayment} />
               </div>
             );
@@ -349,17 +349,17 @@ function PaymentControl({ row, busy, onSave }: { row: PlacementRow; busy: boolea
   return (
     <div className="mt-4 flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-500" htmlFor={'placement-payment-' + row.id}>Payment status</label>
+        <label className="block text-xs font-medium text-slate-400" htmlFor={'placement-payment-' + row.id}>Payment status</label>
         <select
           id={'placement-payment-' + row.id}
-          className="mt-1 w-48 rounded-md border border-line bg-white px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none"
+          className="mt-1 w-48 rounded-md border border-line bg-navy-surface px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none"
           value={value}
           onChange={(e) => setValue(e.target.value)}
         >
           {PAYMENT_STATUSES.map((status) => (<option key={status} value={status}>{status.replace(/_/g, ' ')}</option>))}
         </select>
       </div>
-      <button type="button" onClick={() => void onSave(row.id, value)} disabled={busy} className="inline-flex items-center rounded-md border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-slate-50 disabled:opacity-50">
+      <button type="button" onClick={() => void onSave(row.id, value)} disabled={busy} className="inline-flex items-center rounded-md border border-line bg-navy-surface px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-slate-800 disabled:opacity-50">
         {busy ? 'Saving...' : 'Save payment status'}
       </button>
     </div>

@@ -23,20 +23,20 @@ function formatINR(minor: number): string {
 }
 
 const metric = (label: string, value: number | string, accent?: boolean) => (
-  <div className="rounded-lg border border-line bg-white p-4">
-    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
+  <div className="rounded-lg border border-line bg-navy-surface p-4">
+    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
     <p className={`mt-1 text-2xl font-semibold ${accent ? 'text-accent' : 'text-ink'}`}>{value}</p>
   </div>
 );
 
 function ActivityList({ items }: { items: TalentDashboard['recentActivity'] }) {
   if (items.length === 0) {
-    return <p className="text-sm text-slate-500">No recent activity.</p>;
+    return <p className="text-sm text-slate-400">No recent activity.</p>;
   }
   return (
     <ul className="divide-y divide-line">
       {items.map((item) => (
-        <li key={item.id} className="py-2 text-sm text-slate-600">
+        <li key={item.id} className="py-2 text-sm text-slate-400">
           <span className="font-medium">{item.action}</span>
           {item.summary ? <span className="ml-1">— {item.summary}</span> : null}
           <span className="ml-2 text-slate-400">
@@ -82,7 +82,7 @@ export function TalentDashboardCard() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+      <div className="rounded-lg border border-red-200 bg-red-500/10 p-4 text-sm text-red-300">
         {error}
       </div>
     );
@@ -93,9 +93,9 @@ export function TalentDashboardCard() {
   }
 
   return (
-    <div className="rounded-xl border border-line bg-white p-6">
+    <div className="rounded-xl border border-line bg-navy-surface p-6">
       <h2 className="text-base font-semibold text-ink">Dashboard</h2>
-      <p className="mt-1 text-xs text-slate-500">Real-time recruitment metrics. No simulated data.</p>
+      <p className="mt-1 text-xs text-slate-400">Real-time recruitment metrics. No simulated data.</p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {metric('Open Jobs', metrics.openJobs, true)}

@@ -8,9 +8,9 @@ import type { KbSection } from '@/lib/kb/content';
  */
 export function KbSectionView({ section }: { section: KbSection }): React.ReactElement {
   return (
-    <section className="rounded-xl border border-line bg-white p-6">
+    <section className="rounded-xl border border-line bg-navy-surface p-6">
       <h2 className="text-xl font-semibold text-ink">{section.heading}</h2>
-      <div className="mt-3 space-y-3 text-slate-700">
+      <div className="mt-3 space-y-3 text-slate-300">
         {section.kind === 'text'
           ? section.paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)
           : null}
@@ -25,7 +25,7 @@ export function KbSectionView({ section }: { section: KbSection }): React.ReactE
           <ol className="space-y-3">
             {section.steps.map((step, index) => (
               <li key={index} className="flex gap-3">
-                <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-accent-tint text-xs font-semibold text-accent-strong">
+                <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-accent-tint text-xs font-semibold text-accent-soft">
                   {index + 1}
                 </span>
                 <span>
@@ -56,7 +56,7 @@ export function KbArticleLinks({
   return (
     <div className="grid gap-6 sm:grid-cols-2">
       {relatedTools.length > 0 ? (
-        <section className="rounded-xl border border-line bg-white p-6">
+        <section className="rounded-xl border border-line bg-navy-surface p-6">
           <h2 className="text-lg font-semibold text-ink">Diagnose it yourself</h2>
           <ul className="mt-3 space-y-2">
             {relatedTools.map((tool) => (
@@ -70,7 +70,7 @@ export function KbArticleLinks({
         </section>
       ) : null}
       {relatedArticles.length > 0 ? (
-        <section className="rounded-xl border border-line bg-white p-6">
+        <section className="rounded-xl border border-line bg-navy-surface p-6">
           <h2 className="text-lg font-semibold text-ink">Related guides</h2>
           <ul className="mt-3 space-y-2">
             {relatedArticles.map((article) => (

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { config } from '@/lib/config';
 import { serviceSlugs } from '@/lib/plans/services';
-import { listPublicArticleSlugs } from '@/lib/kb/service';
+import { listPublicArticleSlugs, listPublicCategories } from '@/lib/kb/service';
 import { listPublicJobs } from '@/lib/talent/public';
 
 // Every URL listed here corresponds to an actual public page. Authentication
@@ -20,9 +20,11 @@ const toolPaths = [
 
 const infoPaths = [
   '/docs',
+  '/docs/about',
   '/pricing',
   '/services',
   '/about',
+  '/control',
   '/guides/dns',
   '/guides/email',
   '/faq',
@@ -41,6 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // pages. KB reads fail soft (empty list) when the database is unavailable so
   // the sitemap still renders.
   const articleSlugs = await listPublicArticleSlugs();
+  const categorySlugs = (await listPublicCategories()).data.map((category) => category.slug);
   const servicePathSlugs = serviceSlugs();
 
   // Publicly listed Talent jobs. Like the KB, this fails soft (empty list) so a
@@ -67,6 +70,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...articleSlugs.map((slug) => ({
       url: `${config.APP_URL}/docs/${slug}`,
       changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    })),
+    ...categorySlugs.map((slug) => ({
+      url: `${config.APP_URL}/docs/category/${slug}`,
+      changeFrequency: 'weekly' as const,
       priority: 0.5,
     })),
     ...infoPaths.map((path) => ({

@@ -15,7 +15,6 @@ interface CreateTicketResponse {
     reference: string;
     subject: string;
   };
-  entitlementUsed: 'managed_support' | 'public_request';
 }
 
 export interface SupportRequestFormProps {
@@ -102,13 +101,13 @@ export function SupportRequestForm({
     return (
       <>
         {!authenticated ? (
-          <p className="rounded-md bg-sky-50 p-3 text-sm text-sky-900">
+          <p className="rounded-md bg-sky-500/10 p-3 text-sm text-sky-300">
             Support requests are tracked in your Ravelyth account.{' '}
-            <Link href="/login" className="font-medium underline hover:text-sky-700">
+            <Link href="/login" className="font-medium underline hover:text-sky-300">
               Sign in
             </Link>{' '}
             or{' '}
-            <Link href="/register" className="font-medium underline hover:text-sky-700">
+            <Link href="/register" className="font-medium underline hover:text-sky-300">
               create a free account
             </Link>{' '}
             to submit — creating an account is free and all diagnostic tools stay free.
@@ -116,7 +115,7 @@ export function SupportRequestForm({
         ) : null}
 
         {error ? (
-          <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+          <p role="alert" className="rounded-md bg-red-500/10 p-3 text-sm text-red-300">
             {error}
             {needsAuth ? (
               <>
@@ -192,7 +191,7 @@ export function SupportRequestForm({
             spellCheck={false}
             disabled={loading}
           />
-          <span className="mt-1 block text-xs text-slate-500">
+          <span className="mt-1 block text-xs text-slate-400">
             {domainSuggestion
               ? 'Pre-filled from the diagnostic you came from — correct it if needed.'
               : 'The domain or hostname this request is about, if any.'}
@@ -211,14 +210,14 @@ export function SupportRequestForm({
             rows={6}
             disabled={loading}
           />
-          <span className="mt-1 block text-xs text-slate-500">
+          <span className="mt-1 block text-xs text-slate-400">
             {description.length}/5000 characters. Never paste passwords or private keys.
           </span>
         </label>
 
         {contextPayload ? (
-          <fieldset className="rounded-md border border-line bg-paper p-3 text-xs text-slate-600">
-            <legend className="px-1 font-medium text-slate-700">Attached diagnostic context</legend>
+          <fieldset className="rounded-md border border-line bg-paper p-3 text-xs text-slate-400">
+            <legend className="px-1 font-medium text-slate-300">Attached diagnostic context</legend>
             <ul className="list-disc space-y-0.5 pl-4">
               {contextPayload.tool ? <li>Tool: {String(contextPayload.tool).replace(/_/g, ' ')}</li> : null}
               {contextPayload.domain ? <li>Domain: {String(contextPayload.domain)}</li> : null}
@@ -245,7 +244,7 @@ export function SupportRequestForm({
         </button>
 
         {!authenticated ? (
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-400">
             The form becomes active once you sign in — requests must belong to an account so you can
             receive replies and track status. Ravelyth never asks for your password on this page.
           </p>

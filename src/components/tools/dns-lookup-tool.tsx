@@ -2,19 +2,19 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import { apiPost, formatApiError } from '@/lib/client/api';
-import { DNSLookupResult, DNSLookupStatus, DNSRecordType } from '@/types/domain';
+import { DNSLookupResult, DNSLookupStatus, DNSRecordType, DnsLookupRdap } from '@/types/domain';
 import { buildRecordRows, buildSoaFields, DnsRecordRow } from '@/lib/client/dns-records';
 
 const RECORD_TYPES = Object.values(DNSRecordType);
 
 const STATUS_STYLES: Record<DNSLookupStatus, string> = {
-  success: 'bg-emerald-50 text-emerald-900 ring-emerald-200',
-  empty: 'bg-amber-50 text-amber-900 ring-amber-300',
-  nxdomain: 'bg-red-50 text-red-900 ring-red-300',
-  servfail: 'bg-red-50 text-red-900 ring-red-300',
-  refused: 'bg-red-50 text-red-900 ring-red-300',
-  timeout: 'bg-red-50 text-red-900 ring-red-300',
-  error: 'bg-red-50 text-red-900 ring-red-300',
+  success: 'bg-emerald-500/10 text-emerald-300 ring-emerald-500/40',
+  empty: 'bg-amber-500/10 text-amber-300 ring-amber-500/40',
+  nxdomain: 'bg-red-500/10 text-red-300 ring-red-500/40',
+  servfail: 'bg-red-500/10 text-red-300 ring-red-500/40',
+  refused: 'bg-red-500/10 text-red-300 ring-red-500/40',
+  timeout: 'bg-red-500/10 text-red-300 ring-red-500/40',
+  error: 'bg-red-500/10 text-red-300 ring-red-500/40',
 };
 
 const STATUS_LABELS: Record<DNSLookupStatus, string> = {
@@ -135,7 +135,7 @@ export function DnsLookupTool({
     <div className="space-y-6">
       <form
         onSubmit={onSubmit}
-        className="grid gap-4 rounded-xl border border-line bg-white p-4 sm:grid-cols-[1fr_160px_auto]"
+        className="grid gap-4 rounded-xl border border-line bg-navy-surface p-4 sm:grid-cols-[1fr_160px_auto]"
       >
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-ink">Domain</span>
@@ -178,7 +178,7 @@ export function DnsLookupTool({
       </form>
 
       {error ? (
-        <p className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+        <p className="rounded-md bg-red-500/10 p-3 text-sm text-red-300">
           {error}
         </p>
       ) : null}
@@ -222,12 +222,12 @@ function LookupResult({
 
   return (
     <section className="space-y-4">
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="rounded-xl border border-line bg-navy-surface p-6">
         <div className="flex flex-wrap items-center gap-3">
           <span
             className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset ${
               STATUS_STYLES[result.status] ||
-              'bg-slate-100 text-slate-700 ring-slate-300'
+              'bg-slate-800 text-slate-300 ring-slate-300'
             }`}
           >
             {STATUS_LABELS[result.status] || result.status}
@@ -245,7 +245,7 @@ function LookupResult({
               type="button"
               onClick={onSave}
               disabled={saveState === 'saving' || saveState === 'saved'}
-              className="ml-auto rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent disabled:opacity-60"
+              className="ml-auto rounded-md border border-line px-3 py-1.5 text-sm font-medium text-slate-300 hover:border-accent hover:text-accent disabled:opacity-60"
             >
               {saveState === 'saving'
                 ? 'Saving...'
@@ -257,11 +257,11 @@ function LookupResult({
         </div>
 
         {saveMessage ? (
-          <p className="mt-3 text-sm text-red-800">{saveMessage}</p>
+          <p className="mt-3 text-sm text-red-300">{saveMessage}</p>
         ) : null}
 
         {result.error ? (
-          <p className="mt-3 text-sm text-red-800">{result.error}</p>
+          <p className="mt-3 text-sm text-red-300">{result.error}</p>
         ) : null}
 
         {rows.length === 0 ? (
@@ -273,16 +273,16 @@ function LookupResult({
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-line">
-                  <th scope="col" className="px-3 py-2 font-medium text-slate-500">
+                  <th scope="col" className="px-3 py-2 font-medium text-slate-400">
                     Type
                   </th>
-                  <th scope="col" className="px-3 py-2 font-medium text-slate-500">
+                  <th scope="col" className="px-3 py-2 font-medium text-slate-400">
                     Name
                   </th>
-                  <th scope="col" className="px-3 py-2 font-medium text-slate-500">
+                  <th scope="col" className="px-3 py-2 font-medium text-slate-400">
                     Value / Target
                   </th>
-                  <th scope="col" className="px-3 py-2 font-medium text-slate-500">
+                  <th scope="col" className="px-3 py-2 font-medium text-slate-400">
                     TTL
                   </th>
                 </tr>
@@ -290,9 +290,9 @@ function LookupResult({
 
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.key} className="border-b border-slate-100">
+                  <tr key={row.key} className="border-b border-slate-800">
                     <td className="px-3 py-2">
-                      <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs font-medium text-ink">
+                      <span className="rounded bg-slate-800 px-2 py-0.5 font-mono text-xs font-medium text-ink">
                         {row.type}
                       </span>
                     </td>
@@ -302,7 +302,7 @@ function LookupResult({
                     <td className="break-all px-3 py-2 font-mono text-xs text-ink">
                       {row.value}
                     </td>
-                    <td className="px-3 py-2 font-mono text-xs text-slate-600">
+                    <td className="px-3 py-2 font-mono text-xs text-slate-400">
                       {row.ttl}
                     </td>
                   </tr>
@@ -310,37 +310,133 @@ function LookupResult({
               </tbody>
             </table>
 
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-slate-400">
               TTLs are shown only when the resolver returns them; &quot;—&quot; means the TTL was not provided.
             </p>
           </div>
         )}
 
-        {soaFields.length > 0 ? (
+{soaFields.length > 0 ? (
           <div className="mt-6 rounded-lg border border-line bg-paper p-4">
             <h3 className="font-medium text-ink">SOA details</h3>
 
             <dl className="mt-3 grid gap-x-8 gap-y-2 sm:grid-cols-2">
               {soaFields.map((field) => (
                 <div key={field.label} className="flex justify-between gap-4 text-sm">
-                  <dt className="text-slate-600">{field.label}</dt>
+                  <dt className="text-slate-400">{field.label}</dt>
                   <dd className="font-mono text-xs text-ink">{field.value}</dd>
                 </div>
               ))}
             </dl>
           </div>
         ) : null}
+
+        {result.rdap ? (
+          <RdapPanel rdap={result.rdap} domain={result.domain} recordType={result.recordType} />
+        ) : null}
       </div>
 
-      <details className="rounded-xl border border-line bg-white p-6">
+      <details className="rounded-xl border border-line bg-navy-surface p-6">
         <summary className="cursor-pointer font-semibold text-ink">
           Technical details
         </summary>
 
-        <pre className="mt-3 max-h-[480px] overflow-auto rounded-lg bg-slate-50 p-4 font-mono text-xs text-ink">
-          {JSON.stringify(result, null, 2)}
+        <pre className="mt-3 max-h-[480px] overflow-auto rounded-lg bg-slate-800 p-4 font-mono text-xs text-ink">
+{JSON.stringify(result, null, 2)}
         </pre>
       </details>
     </section>
+  );
+}
+
+interface RdapPanelProps {
+  rdap: DnsLookupRdap;
+  domain: string;
+  recordType: string;
+}
+
+function formatRdapDate(date: string): string {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(parsed);
+}
+
+function RdapPanel({ rdap, domain, recordType }: RdapPanelProps): React.ReactElement {
+  const domainEvents =
+    rdap.domain?.events.find((event) => event.action === 'expiration') ??
+    rdap.domain?.events.find((event) => event.action === 'last changed');
+
+  return (
+    <details className="mt-6 rounded-xl border border-line bg-navy-surface p-6">
+      <summary className="cursor-pointer font-semibold text-ink">
+        Registration & network context
+      </summary>
+      <p className="mt-2 text-xs text-slate-500">
+        Registry information from the responsible RDAP source and, for address records, the network
+        that hosts the IP. Sources report what they publish; redacted fields stay blank.
+      </p>
+
+      {rdap.domain ? (
+        <div className="mt-4">
+          <h4 className="text-sm font-semibold text-ink">
+            Registration for {domain}
+          </h4>
+          <dl className="mt-2 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+            <div className="flex justify-between gap-4">
+              <dt className="text-slate-400">Registrar</dt>
+              <dd className="text-right text-ink">{rdap.domain.registrar ?? 'Not published'}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-slate-400">Expiration</dt>
+              <dd className="text-right text-ink">
+                {domainEvents ? formatRdapDate(domainEvents.date) : 'Not published'}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-slate-400">DNSSEC</dt>
+              <dd className="text-right text-ink">
+                {rdap.domain.dnssecSigned === null
+                  ? 'Not reported'
+                  : rdap.domain.dnssecSigned
+                    ? 'Signed'
+                    : 'Not signed'}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-slate-400">Status</dt>
+              <dd className="max-w-[60%] text-right text-ink">
+                {rdap.domain.status.length > 0
+                  ? rdap.domain.status.slice(0, 4).join(', ')
+                  : 'Not reported'}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      ) : (
+        <p className="mt-4 text-sm text-slate-400">
+          Registration information could not be determined for this domain.
+        </p>
+      )}
+
+      {(recordType === 'A' || recordType === 'AAAA') && rdap.networks.length > 0 ? (
+        <div className="mt-5">
+          <h4 className="text-sm font-semibold text-ink">Hosting networks for the returned IPs</h4>
+          <ul className="mt-2 space-y-3">
+            {rdap.networks.map((network) => (
+              <li key={network.ip} className="rounded-md border border-line p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span className="font-mono text-xs text-ink">{network.ip}</span>
+                  <span className="text-ink">{network.organization ?? 'Organization not published'}</span>
+                </div>
+                <p className="mt-1 text-xs text-slate-400">
+                  {network.name ?? 'Unnamed network'} · {network.startAddress} – {network.endAddress}
+                  {network.country ? ` · ${network.country}` : ''}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </details>
   );
 }

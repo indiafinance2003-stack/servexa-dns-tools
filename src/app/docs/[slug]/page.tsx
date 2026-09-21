@@ -65,7 +65,7 @@ export default async function ArticlePage({ params }: PageProps): Promise<React.
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <nav aria-label="Breadcrumb" className="text-sm text-slate-500">
+      <nav aria-label="Breadcrumb" className="text-sm text-slate-400">
         <Link href="/" className="hover:text-accent">
           Home
         </Link>
@@ -78,12 +78,12 @@ export default async function ArticlePage({ params }: PageProps): Promise<React.
         <span className="mx-2" aria-hidden="true">
           /
         </span>
-        <span className="text-slate-800">{article.title}</span>
+        <span className="text-slate-200">{article.title}</span>
       </nav>
 
       <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink">{article.title}</h1>
       {article.description ? <p className="mt-3 text-lg text-muted">{article.description}</p> : null}
-      <p className="mt-2 text-sm text-slate-500">
+      <p className="mt-2 text-sm text-slate-400">
         {article.readingTimeMinutes ? `${article.readingTimeMinutes} min read` : null}
         {article.readingTimeMinutes && article.updatedAt
           ? ' · '
@@ -96,8 +96,8 @@ export default async function ArticlePage({ params }: PageProps): Promise<React.
           <KbSectionView key={index} section={section} />
         ))}
         {article.bodyJson === null && article.body ? (
-          <section className="rounded-xl border border-line bg-white p-6">
-            <p className="whitespace-pre-wrap text-slate-700">{article.body}</p>
+          <section className="rounded-xl border border-line bg-navy-surface p-6">
+            <p className="whitespace-pre-wrap text-slate-300">{article.body}</p>
           </section>
         ) : null}
       </div>
@@ -106,7 +106,7 @@ export default async function ArticlePage({ params }: PageProps): Promise<React.
         <KbArticleLinks relatedTools={article.relatedTools} relatedArticles={article.relatedArticles} />
       </div>
 
-      <p className="mt-8 text-sm text-slate-500">
+      <p className="mt-8 text-sm text-slate-400">
         Stuck after following this guide?{' '}
         <Link href="/support/request" className="font-medium text-accent hover:text-accent-strong">
           Request support

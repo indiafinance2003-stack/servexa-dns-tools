@@ -15,7 +15,7 @@ export default function OpengraphImage() {
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          backgroundColor: '#f8fafc',
+          backgroundColor: '#0b1220',
           padding: '72px 76px',
         }}
       >
@@ -25,16 +25,17 @@ export default function OpengraphImage() {
               width: 84,
               height: 84,
               borderRadius: 18,
-              backgroundColor: '#0f172a',
+              backgroundColor: '#0b1220',
+              border: '3px solid #2563eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
             <div style={{ position: 'relative', width: 56, height: 56, display: 'flex' }}>
-              <div style={{ width: 56, height: 56, borderRadius: 28, border: '4px solid #14b8a6' }} />
-              <div style={{ position: 'absolute', top: 27, left: 0, width: 56, height: 2, backgroundColor: '#0d9488' }} />
-              <div style={{ position: 'absolute', top: 0, left: 27, width: 2, height: 56, backgroundColor: '#0d9488' }} />
+              <div style={{ width: 56, height: 56, borderRadius: 28, border: '4px solid #38BDF8' }} />
+              <div style={{ position: 'absolute', top: 27, left: 0, width: 56, height: 2, backgroundColor: '#60A5FA' }} />
+              <div style={{ position: 'absolute', top: 0, left: 27, width: 2, height: 56, backgroundColor: '#2563EB' }} />
               <div
                 style={{
                   position: 'absolute',
@@ -43,14 +44,14 @@ export default function OpengraphImage() {
                   width: 10,
                   height: 10,
                   borderRadius: 5,
-                  backgroundColor: '#a7f3e8',
+                  backgroundColor: '#7DD3FC',
                 }}
               />
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginLeft: 24 }}>
-            <div style={{ fontSize: 52, fontWeight: 700, color: '#0f172a', lineHeight: 1.1 }}>Ravelyth</div>
-            <div style={{ fontSize: 26, color: '#0f766e', marginTop: 8 }}>Free DNS and email diagnostics</div>
+            <div style={{ fontSize: 52, fontWeight: 700, color: '#F8FAFC', lineHeight: 1.1 }}>Ravelyth</div>
+            <div style={{ fontSize: 26, color: '#38BDF8', marginTop: 8 }}>Free DNS and email diagnostics</div>
           </div>
         </div>
         <div
@@ -60,7 +61,7 @@ export default function OpengraphImage() {
             alignItems: 'flex-start',
             fontSize: 54,
             fontWeight: 700,
-            color: '#0f172a',
+            color: '#F8FAFC',
             marginTop: 44,
             lineHeight: 1.15,
           }}
@@ -68,10 +69,10 @@ export default function OpengraphImage() {
           <div>DNS &amp; Email Diagnostics,</div>
           <div>Made Clear.</div>
         </div>
-        <div style={{ fontSize: 28, color: '#475569', marginTop: 20 }}>
+        <div style={{ fontSize: 28, color: '#94A3B8', marginTop: 20 }}>
           Inspect DNS records, nameservers, SPF, DKIM, DMARC, DNSSEC-related data and raw email headers.
         </div>
-        <div style={{ fontSize: 22, color: '#115e59', marginTop: 28 }}>
+        <div style={{ fontSize: 22, color: '#60A5FA', marginTop: 28 }}>
           ravelyth.in · No account required · No simulated results
         </div>
       </div>

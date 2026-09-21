@@ -1,10 +1,10 @@
 import { FindingSeverity } from '@/types/domain';
 
 const styles: Record<FindingSeverity, { symbol: string; label: string; className: string }> = {
-  pass: { symbol: '✓', label: 'Pass', className: 'bg-emerald-50 text-emerald-900 ring-emerald-200' },
-  info: { symbol: 'i', label: 'Info', className: 'bg-slate-100 text-slate-700 ring-slate-300' },
-  warning: { symbol: '!', label: 'Warning', className: 'bg-amber-50 text-amber-900 ring-amber-300' },
-  error: { symbol: '×', label: 'Error', className: 'bg-red-50 text-red-900 ring-red-300' },
+  pass: { symbol: '✓', label: 'Pass', className: 'bg-emerald-500/10 text-emerald-300 ring-emerald-500/40' },
+  info: { symbol: 'i', label: 'Info', className: 'bg-slate-800 text-slate-300 ring-slate-300' },
+  warning: { symbol: '!', label: 'Warning', className: 'bg-amber-500/10 text-amber-300 ring-amber-500/40' },
+  error: { symbol: '×', label: 'Error', className: 'bg-red-500/10 text-red-300 ring-red-500/40' },
 };
 
 export function StatusBadge({

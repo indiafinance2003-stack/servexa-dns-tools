@@ -53,6 +53,43 @@ const tools = [
   },
 ];
 
+const ecosystem: Array<{
+  href: string;
+  icon: string;
+  title: string;
+  body: string;
+  status: { label: string; tone: 'live' | 'soon' };
+}> = [
+  {
+    href: '/#tools',
+    icon: 'globe',
+    title: 'Diagnostic Tools',
+    body: 'Free DNS and email diagnostics — lookups, health checks, SPF / DKIM / DMARC parsing, and email header analysis.',
+    status: { label: 'Free', tone: 'live' },
+  },
+  {
+    href: '/pricing',
+    icon: 'headset',
+    title: 'Managed Support',
+    body: 'A person who owns the diagnosis for your DNS, email, and hosting problems, with tracked tickets in your account.',
+    status: { label: 'Available', tone: 'live' },
+  },
+  {
+    href: '/control',
+    icon: 'server',
+    title: 'Ravelyth Control',
+    body: 'Infrastructure control plane for your servers — licensing, remote agent commands, and software delivery.',
+    status: { label: 'Coming soon', tone: 'soon' },
+  },
+  {
+    href: '/talent',
+    icon: 'doc',
+    title: 'Ravelyth Talent',
+    body: 'A private technical staffing directory for the network-aligned work that keeps your stack running.',
+    status: { label: 'Available', tone: 'live' },
+  },
+];
+
 const steps: Array<{ title: string; body: string }> = [
   {
     title: 'Run the query',
@@ -107,7 +144,7 @@ export default function HomePage(): React.ReactElement {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: structuredData() }}
       />
-      <section className="bg-tech-grid border-b border-line bg-white">
+      <section className="bg-tech-grid border-b border-line bg-navy-surface">
         <div className="mx-auto max-w-7xl px-4 py-20 text-center">
           <span className="inline-flex items-center rounded-full border border-line bg-paper px-3 py-1 text-xs font-medium uppercase tracking-wide text-accent">
             Free public toolkit
@@ -123,9 +160,43 @@ export default function HomePage(): React.ReactElement {
           </p>
           <div className="mx-auto mt-8 max-w-xl">
             <DomainSearch />
-            <p className="mt-3 text-xs text-slate-500">
+            <p className="mt-3 text-xs text-slate-400">
               Start with a full domain health check, or pick a specific tool below.
             </p>
+          </div>
+        </div>
+      </section>
+      <section className="border-t border-line bg-navy-surface">
+        <div className="mx-auto max-w-7xl px-4 py-16">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl font-semibold tracking-tight text-ink">One ecosystem, four products</h2>
+            <p className="mt-3 text-lg text-muted">
+              The free diagnostics are the front door. Around them, Ravelyth runs a stricter, accountable layer.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {ecosystem.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group flex flex-col rounded-xl border border-line bg-paper p-5 transition hover:border-accent"
+              >
+                <div className="flex items-center justify-between">
+                  <ToolIcon name={item.icon} />
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      item.status.tone === 'live'
+                        ? 'bg-emerald-500/10 text-emerald-300'
+                        : 'bg-amber-500/10 text-amber-300'
+                    }`}
+                  >
+                    {item.status.label}
+                  </span>
+                </div>
+                <h3 className="mt-4 text-base font-semibold text-ink group-hover:text-accent">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-400">{item.body}</p>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -141,11 +212,11 @@ export default function HomePage(): React.ReactElement {
             <Link
               key={tool.href}
               href={tool.href}
-              className="group flex flex-col rounded-xl border border-line bg-white p-5 transition hover:border-accent hover:shadow-sm"
+              className="group flex flex-col rounded-xl border border-line bg-navy-surface p-5 transition hover:border-accent hover:shadow-sm"
             >
               <ToolIcon name={tool.icon} />
               <h3 className="mt-4 text-base font-semibold text-ink group-hover:text-accent">{tool.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{tool.body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">{tool.body}</p>
             </Link>
           ))}
         </div>
@@ -155,12 +226,12 @@ export default function HomePage(): React.ReactElement {
           <h2 className="text-3xl font-semibold tracking-tight text-ink">How it works</h2>
           <ol className="mt-10 grid gap-6 md:grid-cols-3">
             {steps.map((step, index) => (
-              <li key={step.title} className="rounded-xl border border-line bg-white p-6">
+              <li key={step.title} className="rounded-xl border border-line bg-navy-surface p-6">
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-semibold text-white">
                   {index + 1}
                 </span>
                 <h3 className="mt-4 text-lg font-semibold text-ink">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">{step.body}</p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-400">{step.body}</p>
               </li>
             ))}
           </ol>
@@ -177,12 +248,12 @@ export default function HomePage(): React.ReactElement {
           {trustItems.map((item) => (
             <div key={item.title} className="border-t border-line pt-5">
               <dt className="text-sm font-semibold uppercase tracking-wide text-accent">{item.title}</dt>
-              <dd className="mt-2 text-sm leading-relaxed text-slate-600">{item.body}</dd>
+              <dd className="mt-2 text-sm leading-relaxed text-slate-400">{item.body}</dd>
             </div>
           ))}
         </dl>
       </section>
-      <section className="border-t border-line bg-white">
+      <section className="border-t border-line bg-navy-surface">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center">
           <h2 className="text-3xl font-semibold tracking-tight text-ink">Start with your domain</h2>
           <p className="mt-3 text-lg text-muted">

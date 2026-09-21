@@ -44,9 +44,16 @@ export function sendError(error: Error | AppError, statusCode?: number): NextRes
 }
 
 function clientKey(req: NextRequest): string {
-  const forwarded = req.headers.get('x-forwarded-for');
-  const ip = forwarded?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'local';
-  return ip.slice(0, 128);
+  if (config.TRUST_PROXY_HEADERS) {
+    const forwarded = req.headers.get('x-forwarded-for');
+    const forwardedIp = forwarded?.split(',')[0]?.trim();
+    if (forwardedIp) return forwardedIp.slice(0, 128);
+    const realIp = req.headers.get('x-real-ip');
+    if (realIp) return realIp.slice(0, 128);
+  }
+  // Without a trusted reverse proxy, a client-controllable header must not be
+  // used as a rate-limit key: spoofing it would reset the bucket.
+  return 'untrusted';
 }
 
 export function enforceRequestGuards(req: NextRequest): void {

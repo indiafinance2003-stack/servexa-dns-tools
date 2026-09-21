@@ -35,10 +35,14 @@ interface Config {
   // Which billing/payment provider is wired up. Empty means NO gateway is
   // configured: the application must then never report a successful payment.
   BILLING_PROVIDER: string;
+  // Razorpay credentials. All three must be non-empty before BILLING_PROVIDER
+  // is treated as configured (see src/lib/billing/providers).
+  RAZORPAY_KEY_ID: string;
+  RAZORPAY_KEY_SECRET: string;
+  RAZORPAY_WEBHOOK_SECRET: string;
   // Grace period is an open commercial decision; 0 means "not decided".
   BILLING_GRACE_PERIOD_DAYS: number;
   SUPPORT_MAX_OPEN_TICKETS: number;
-  SUPPORT_MAX_OPEN_PUBLIC_REQUESTS: number;
   SUPPORT_TICKET_RATE_LIMIT_MAX: number;
   SUPPORT_TICKET_RATE_LIMIT_WINDOW_MS: number;
     SUPPORT_INCLUDE_INTERNAL_RESPONSES: boolean;
@@ -162,11 +166,11 @@ function getConfig(): Config {
     MANAGED_SUPPORT_QUARTERLY_PRICE_MINOR: parseEnvOptionalInt('MANAGED_SUPPORT_QUARTERLY_PRICE_MINOR'),
     MANAGED_SUPPORT_YEARLY_PRICE_MINOR: parseEnvOptionalInt('MANAGED_SUPPORT_YEARLY_PRICE_MINOR'),
     BILLING_PROVIDER: (process.env.BILLING_PROVIDER || '').trim(),
+    RAZORPAY_KEY_ID: (process.env.RAZORPAY_KEY_ID || '').trim(),
+    RAZORPAY_KEY_SECRET: (process.env.RAZORPAY_KEY_SECRET || '').trim(),
+    RAZORPAY_WEBHOOK_SECRET: (process.env.RAZORPAY_WEBHOOK_SECRET || '').trim(),
     BILLING_GRACE_PERIOD_DAYS: parseEnvNonNegativeInt('BILLING_GRACE_PERIOD_DAYS', 0),
     SUPPORT_MAX_OPEN_TICKETS: parseEnvInt('SUPPORT_MAX_OPEN_TICKETS', 5),
-    // Operational (not commercial) abusion limit for accounts without Managed
-    // Support that use the public request flow. Configurable.
-    SUPPORT_MAX_OPEN_PUBLIC_REQUESTS: parseEnvInt('SUPPORT_MAX_OPEN_PUBLIC_REQUESTS', 2),
     SUPPORT_TICKET_RATE_LIMIT_MAX: parseEnvInt('SUPPORT_TICKET_RATE_LIMIT_MAX', 10),
     SUPPORT_TICKET_RATE_LIMIT_WINDOW_MS: parseEnvInt('SUPPORT_TICKET_RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000),
             SUPPORT_INCLUDE_INTERNAL_RESPONSES: parseEnvBool('SUPPORT_INCLUDE_INTERNAL_RESPONSES', false),

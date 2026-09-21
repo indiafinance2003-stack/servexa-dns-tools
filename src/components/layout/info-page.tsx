@@ -28,9 +28,9 @@ export function InfoSection({
   children: React.ReactNode;
 }): React.ReactElement {
   return (
-    <section id={id} className="rounded-xl border border-line bg-white p-6">
+    <section id={id} className="rounded-xl border border-line bg-navy-surface p-6">
       <h2 className="text-xl font-semibold text-ink">{title}</h2>
-      <div className="mt-3 space-y-3 text-slate-700">{children}</div>
+      <div className="mt-3 space-y-3 text-slate-300">{children}</div>
     </section>
   );
 }
@@ -47,7 +47,7 @@ export function InfoLinkList({
           <Link href={item.href} className="font-medium text-accent hover:text-accent-strong">
             {item.label}
           </Link>
-          {item.note ? <p className="mt-0.5 text-sm text-slate-600">{item.note}</p> : null}
+          {item.note ? <p className="mt-0.5 text-sm text-slate-400">{item.note}</p> : null}
         </li>
       ))}
     </ul>

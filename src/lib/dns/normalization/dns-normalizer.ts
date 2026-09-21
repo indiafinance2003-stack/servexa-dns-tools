@@ -79,7 +79,7 @@ export function normalizeSOARecord(record: unknown): SOARecord | null {
       refresh: Number(r.refresh || 0),
       retry: Number(r.retry || 0),
       expire: Number(r.expire || 0),
-      minimum: Number(r.minimum || 0),
+      minimum: Number(r.minttl ?? r.minimum ?? 0),
     };
   }
   return null;
